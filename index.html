@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Màn hình Đăng nhập / Đăng ký -->
     <div id="auth-screen" class="screen active">
         <div class="container">
             <h1>WEBSITE NGHE NHẠC<br>ĐOÁN TÊN BÀI HÁT</h1>
@@ -23,7 +22,6 @@
         </div>
     </div>
 
-    <!-- Màn hình Menu chính -->
     <div id="menu-screen" class="screen">
         <div class="container">
             <h1>Xin chào, <span id="player-name"></span>!</h1>
@@ -35,7 +33,6 @@
         </div>
     </div>
 
-    <!-- Màn hình Chơi game -->
     <div id="game-screen" class="screen">
         <div class="game-header">
             <div>Điểm: <span id="score">0</span></div>
@@ -54,7 +51,6 @@
         </div>
     </div>
 
-    <!-- Màn hình Shop -->
     <div id="shop-screen" class="screen">
         <div class="container">
             <h1>SHOP</h1>
@@ -68,7 +64,6 @@
         </div>
     </div>
 
-    <!-- Màn hình Kết quả -->
     <div id="result-screen" class="screen">
         <div class="container">
             <h1>Hoàn thành!</h1>
@@ -78,14 +73,26 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer>
         <p>MADE IN VN 🇻🇳</p>
         <p>MADE BY: NGUYỄN CHÍ DỰ ♥️ 🇻🇳</p>
         <p>CẢM ƠN BẠN ĐÃ CHƠI ♥️♥️♥️🇻🇳🇻🇳🇻🇳</p>
-        <a href="https://github.com/yourusername/yourrepo/issues" target="_blank" class="report-btn">REPORT BUGS</a>
+        <button id="report-btn" class="report-btn">REPORT BUGS</button>
     </footer>
+
+    <!-- Modal Report Bug -->
+    <div id="report-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-modal" class="close">&times;</span>
+            <h2>Report Bug hoặc Góp Ý</h2>
+            <input type="text" id="report-name" placeholder="Tên của bạn (bắt buộc)">
+            <input type="email" id="report-email" placeholder="Gmail của bạn (bắt buộc)">
+            <textarea id="report-message" placeholder="Tin nhắn yêu cầu của bạn (bắt buộc)" rows="6"></textarea>
+            <button id="send-report">Gửi Báo Cáo</button>
+            <p id="report-status"></p>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
-</html>
+                </html>
