@@ -7,13 +7,14 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Main Menu (Đăng nhập / Đăng ký) -->
+    <!-- Trang đăng nhập / đăng ký -->
     <div id="mainMenu" class="screen active">
         <div class="container">
             <h1 class="title">WEBSITE NGHE NHẠC ĐOÁN BÀI HÁT</h1>
             <p class="subtitle">
                 ĐƯỢC TẠO BỞI: Nguyễn Chí Dự 🇻🇳♥️🇻🇳<br>
-                <small>Có lỗi? Kéo xuống chân trang bấm nút báo lỗi nhé!</small>
+                <small>Phiên bản 1.6 • Phát nhạc thật từ YouTube (NEFFEX & TheFatRat)<br>
+                Có lỗi kéo xuống chân trang bấm nút báo lỗi nhé!</small>
             </p>
 
             <button class="btn primary large" onclick="showLogin()">ĐĂNG NHẬP</button>
@@ -25,11 +26,11 @@
         </div>
     </div>
 
-    <!-- Main Home (Sau khi đăng nhập) -->
+    <!-- Trang chính sau khi đăng nhập -->
     <div id="mainHome" class="screen">
         <div class="container">
             <h1>Xin chào!</h1>
-            <p id="welcomeUser" class="welcome-text"></p>
+            <p id="welcomeUser" class="welcome-text">Đang tải...</p>
 
             <button class="btn primary extra-large" onclick="startGame()">🎵 BẮT ĐẦU CHƠI</button>
 
@@ -46,7 +47,7 @@
         </div>
     </div>
 
-    <!-- Main Game -->
+    <!-- Trang chơi game -->
     <div id="mainGame" class="screen">
         <div class="game-header">
             <div>Điểm số: <span id="score">0</span> 🏆</div>
@@ -54,9 +55,9 @@
         </div>
 
         <div class="music-player">
-            <!-- YouTube Player sẽ được chèn tự động bằng JS -->
+            <!-- Nút phát nhạc lớn -->
             <button id="playBtn" class="play-button" onclick="playClip()">▶️ PHÁT ĐOẠN NHẠC</button>
-            <p class="hint">Nghe kỹ và đoán tên bài hát nhé!</p>
+            <p class="hint">Nghe kỹ đoạn drop siêu chất từ NEFFEX & TheFatRat nhé! 🔥</p>
         </div>
 
         <div class="answer-section">
@@ -74,7 +75,7 @@
         </div>
     </div>
 
-    <!-- Modal chung -->
+    <!-- Modal chung (đăng nhập, đăng ký, báo lỗi, hướng dẫn...) -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">×</span>
@@ -82,9 +83,15 @@
         </div>
     </div>
 
-    <!-- Notification -->
+    <!-- Thông báo toast -->
     <div id="notification" class="notification"></div>
 
+    <!-- Đồng hồ realtime Việt Nam -->
+    <div id="realtime-clock" class="realtime-clock">
+        Đang tải thời gian...
+    </div>
+
+    <!-- Load script.js chứa toàn bộ logic -->
     <script src="script.js"></script>
 </body>
 </html>
