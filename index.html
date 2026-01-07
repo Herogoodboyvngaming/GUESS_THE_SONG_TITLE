@@ -13,8 +13,8 @@
             <h1 class="title">WEBSITE NGHE NHẠC ĐOÁN BÀI HÁT</h1>
             <p class="subtitle">
                 ĐƯỢC TẠO BỞI: Nguyễn Chí Dự 🇻🇳♥️🇻🇳<br>
-                <small>Phiên bản 1.7 • Tự động đăng nhập + Chị Google hướng dẫn chi tiết<br>
-                Phát nhạc thật từ YouTube (NEFFEX & TheFatRat)<br>
+                <small>Phiên bản 1.8 • Ẩn hoàn toàn thumbnail & tiêu đề YouTube<br>
+                Chỉ nghe nhạc đoán tên – siêu khó, siêu fair!<br>
                 Có lỗi kéo xuống chân trang bấm nút báo lỗi nhé!</small>
             </p>
 
@@ -27,7 +27,7 @@
         </div>
     </div>
 
-    <!-- Trang chính sau khi đăng nhập - NÚT THÔNG TIN & UPDATE Ở ĐÂY -->
+    <!-- Trang chính sau đăng nhập -->
     <div id="mainHome" class="screen">
         <div class="container">
             <h1>Xin chào!</h1>
@@ -40,8 +40,9 @@
                 <span>🔊 Bật/Tắt chị Google (TTS)</span>
             </label>
 
-            <!-- Nút THÔNG TIN & UPDATE nổi bật ở mainHome -->
             <button class="btn info large" onclick="showInfo()">ℹ️ THÔNG TIN & UPDATE</button>
+
+            <button class="btn danger large" onclick="logout()">🚪 ĐĂNG XUẤT</button>
 
             <div class="footer">
                 <button class="btn small outline" onclick="showReportBug()">🛠️ Báo lỗi</button>
@@ -49,7 +50,7 @@
         </div>
     </div>
 
-    <!-- Trang chơi game - KHÔNG CÓ NÚT INFO NỮA -->
+    <!-- Trang chơi game -->
     <div id="mainGame" class="screen">
         <div class="game-header">
             <div>Điểm số: <span id="score">0</span> 🏆</div>
@@ -58,8 +59,8 @@
 
         <div class="music-player">
             <button id="playBtn" class="play-button" onclick="playClip()">▶️ PHÁT ĐOẠN NHẠC</button>
-            <p class="hint">Nghe kỹ đoạn drop siêu chất từ NEFFEX & TheFatRat nhé! 🔥<br>
-            <small>Chị Google sẽ hướng dẫn bạn nếu cần!</small></p>
+            <p class="hint">Chỉ nghe âm thanh thôi nhé – không nhìn thumbnail đâu! 😏<br>
+            Đoán tên bài hát của NEFFEX & TheFatRat nào!</p>
         </div>
 
         <div class="answer-section">
@@ -88,7 +89,7 @@
     <!-- Thông báo toast -->
     <div id="notification" class="notification"></div>
 
-    <!-- Load script.js phiên bản 1.7 -->
+    <!-- Load script.js -->
     <script src="script.js"></script>
 </body>
 </html>
