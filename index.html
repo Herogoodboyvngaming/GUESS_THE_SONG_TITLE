@@ -13,7 +13,8 @@
             <h1 class="title">WEBSITE NGHE NHẠC ĐOÁN BÀI HÁT</h1>
             <p class="subtitle">
                 ĐƯỢC TẠO BỞI: Nguyễn Chí Dự 🇻🇳♥️🇻🇳<br>
-                <small>Phiên bản 1.6 • Phát nhạc thật từ YouTube (NEFFEX & TheFatRat)<br>
+                <small>Phiên bản 1.7 • Tự động đăng nhập + Chị Google hướng dẫn chi tiết<br>
+                Phát nhạc thật từ YouTube (NEFFEX & TheFatRat)<br>
                 Có lỗi kéo xuống chân trang bấm nút báo lỗi nhé!</small>
             </p>
 
@@ -26,7 +27,7 @@
         </div>
     </div>
 
-    <!-- Trang chính sau khi đăng nhập -->
+    <!-- Trang chính sau khi đăng nhập - NÚT THÔNG TIN & UPDATE Ở ĐÂY -->
     <div id="mainHome" class="screen">
         <div class="container">
             <h1>Xin chào!</h1>
@@ -39,7 +40,8 @@
                 <span>🔊 Bật/Tắt chị Google (TTS)</span>
             </label>
 
-            <button class="btn info" onclick="showInfo()">ℹ️ THÔNG TIN & UPDATE</button>
+            <!-- Nút THÔNG TIN & UPDATE nổi bật ở mainHome -->
+            <button class="btn info large" onclick="showInfo()">ℹ️ THÔNG TIN & UPDATE</button>
 
             <div class="footer">
                 <button class="btn small outline" onclick="showReportBug()">🛠️ Báo lỗi</button>
@@ -47,7 +49,7 @@
         </div>
     </div>
 
-    <!-- Trang chơi game -->
+    <!-- Trang chơi game - KHÔNG CÓ NÚT INFO NỮA -->
     <div id="mainGame" class="screen">
         <div class="game-header">
             <div>Điểm số: <span id="score">0</span> 🏆</div>
@@ -55,9 +57,9 @@
         </div>
 
         <div class="music-player">
-            <!-- Nút phát nhạc lớn -->
             <button id="playBtn" class="play-button" onclick="playClip()">▶️ PHÁT ĐOẠN NHẠC</button>
-            <p class="hint">Nghe kỹ đoạn drop siêu chất từ NEFFEX & TheFatRat nhé! 🔥</p>
+            <p class="hint">Nghe kỹ đoạn drop siêu chất từ NEFFEX & TheFatRat nhé! 🔥<br>
+            <small>Chị Google sẽ hướng dẫn bạn nếu cần!</small></p>
         </div>
 
         <div class="answer-section">
@@ -75,7 +77,7 @@
         </div>
     </div>
 
-    <!-- Modal chung (đăng nhập, đăng ký, báo lỗi, hướng dẫn...) -->
+    <!-- Modal chung -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">×</span>
@@ -86,12 +88,7 @@
     <!-- Thông báo toast -->
     <div id="notification" class="notification"></div>
 
-    <!-- Đồng hồ realtime Việt Nam -->
-    <div id="realtime-clock" class="realtime-clock">
-        Đang tải thời gian...
-    </div>
-
-    <!-- Load script.js chứa toàn bộ logic -->
+    <!-- Load script.js phiên bản 1.7 -->
     <script src="script.js"></script>
 </body>
 </html>
