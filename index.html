@@ -1,0 +1,85 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WEBSITE NGHE NHẠC ĐOÁN TÊN BÀI HÁT</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preload" href="https://images.unsplash.com/photo-1614149162883-504ce4d13909?ixlib=rb-4.0.3&auto=format&fit=crop&w=1974&q=80" as="image">
+</head>
+<body>
+    <div class="background"></div>
+    <div class="overlay"></div>
+
+    <!-- Login / Register Screen -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-box">
+            <h1>WEBSITE NGHE NHẠC ĐOÁN TÊN BÀI HÁT</h1>
+            <p class="auth-subtitle">WEBSITE ĐƯỢC TẠO BỞI : NGUYỄN CHÍ DỰ<br>CÓ LỖI KÉO XUỐNG DƯỚI CHÂN TRANG BẤM VÀO NÚT REPORT BUGS NHÉ 🇻🇳♥️</p>
+            <div class="auth-form">
+                <input type="text" id="username" placeholder="Tên đăng nhập" required>
+                <input type="password" id="password" placeholder="Mật khẩu" required>
+                <button id="loginBtn">ĐĂNG NHẬP</button>
+                <button id="registerBtn">ĐĂNG KÝ</button>
+            </div>
+            <p id="authMessage" class="message"></p>
+        </div>
+    </div>
+
+    <!-- Main Game Screen -->
+    <div class="game-screen" id="gameScreen" style="display: none;">
+        <header>
+            <div class="header-left">
+                <span>Xin chào, <span id="currentUser"></span>!</span>
+                <span>Điểm: <span id="score">0</span></span>
+            </div>
+            <div class="header-right">
+                <span id="currentTime"></span>
+            </div>
+        </header>
+
+        <main class="game-container">
+            <h1 class="main-title">WEBSITE NGHE NHẠC ĐOÁN TÊN BÀI HÁT</h1>
+            <p class="subtitle">WEBSITE ĐƯỢC TẠO BỞI : NGUYỄN CHÍ DỰ<br>CÓ LỖI KÉO XUỐNG DƯỚI CHÂN TRANG BẤM VÀO NÚT REPORT BUGS NHÉ 🇻🇳♥️</p>
+
+            <div class="game-area">
+                <button id="startBtn" class="big-btn">BẮT ĐẦU CHƠI</button>
+
+                <div id="questionArea" style="display: none;">
+                    <h2>ÂM THANH BẠN VỪA NGHE ĐƯỢC LÀ GÌ?</h2>
+                    <button class="play-btn" id="playBtn">▶ NGHE NHẠC (10 GIÂY)</button>
+
+                    <div class="options" id="options"></div>
+
+                    <div class="game-controls">
+                        <button id="skipBtn">SKIP (-30 điểm)</button>
+                        <button id="giveUpBtn">TỪ BỎ (-10 điểm)</button>
+                        <button id="restartBtn">RESTART</button>
+                        <button id="homeBtn">TRỞ VỀ TRANG CHỦ</button>
+                    </div>
+                </div>
+
+                <div id="resultArea" style="display: none;">
+                    <h2 id="resultText"></h2>
+                    <button id="nextBtn" class="big-btn">TIẾP TỤC</button>
+                </div>
+            </div>
+
+            <div class="shop-section">
+                <h3>SHOP MUA NHẠC QUỐC TẾ (DÙNG ĐIỂM)</h3>
+                <p>Coming soon... 🇺🇸🇬🇧🇰🇷</p>
+            </div>
+        </main>
+
+        <footer>
+            <p>MADE IN VN 🇻🇳</p>
+            <p>MADE BY : NGUYỄN CHÍ DỰ ♥️ 🇻🇳</p>
+            <p>CẢM ƠN BẠN ĐÃ CHƠI ♥️♥️♥️🇻🇳🇻🇳🇻🇳</p>
+            <button id="reportBtn">REPORT BUGS</button>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
