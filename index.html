@@ -6,7 +6,7 @@
     <title>WEBSITE NGHE NHẠC ĐOÁN TÊN BÀI HÁT</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="https://www.youtube.com/iframe_api"></script> <!-- YouTube API cho audio -->
+    <script src="https://www.youtube.com/iframe_api"></script>
 </head>
 <body>
     <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ -->
@@ -29,10 +29,8 @@
         <div class="container">
             <h1>Xin chào, <span id="player-name"></span>!</h1>
             <p>Điểm cao nhất: <span id="high-score">0</span></p>
-            <p>Điểm hiện tại: <span id="current-points">0</span></p>
             <button id="toggle-tts" class="big-btn">Tắt Giọng Đọc</button>
             <button id="start-game" class="big-btn">BẮT ĐẦU CHƠI</button>
-            <button id="shop-btn" class="big-btn">SHOP</button>
             <button id="logout-btn">Đăng xuất</button>
             <div class="time" id="real-time"></div>
         </div>
@@ -47,7 +45,7 @@
         <div class="container game-container">
             <h2 id="question-text">ÂM THANH BẠN VỪA NGHE ĐƯỢC LÀ GÌ?</h2>
             <button id="play-btn" class="play-btn">▶ PHÁT NHẠC (10 giây)</button>
-            <div id="youtube-player" style="display:none;"></div> <!-- Player YouTube ẩn -->
+            <div id="youtube-player" style="display:none;"></div>
             <div id="options" class="options"></div>
             <div class="game-controls">
                 <button id="home-btn">Trở về menu</button>
@@ -55,21 +53,6 @@
                 <button id="skip-btn">Skip (-30)</button>
                 <button id="restart-btn">Restart</button>
             </div>
-        </div>
-    </div>
-
-    <!-- MÀN HÌNH SHOP -->
-    <div id="shop-screen" class="screen">
-        <div class="container">
-            <h1>SHOP</h1>
-            <p>Điểm hiện tại: <span id="shop-points">0</span></p>
-            <div class="shop-item">
-                <h3>Gói Nhạc Nước Ngoài Khác</h3>
-                <p>(Coming Soon ⏰)</p>
-                <p>Giá: 500 điểm</p>
-                <button class="buy-btn">Mua ngay</button>
-            </div>
-            <button id="back-to-menu-shop">Quay lại</button>
         </div>
     </div>
 
@@ -113,12 +96,11 @@
             <div id="update-content">
                 <p><strong>Ngày update mới nhất: 07/01/2026</strong></p>
                 <ul>
-                    <li>Chuyển audio sang YouTube Player API (phát chuẩn gốc từ video official)</li>
-                    <li>Thêm thumbnail đúng từ YouTube cho đáp án</li>
-                    <li>Shop có gói Coming Soon ⏰</li>
-                    <li>Nút bật/tắt giọng đọc TTS</li>
+                    <li>Xóa shop hoàn toàn</li>
+                    <li>Tối ưu cực max cho PC & Mobile (load nhanh, ít RAM)</li>
+                    <li>Phát nhạc YouTube auto nhanh hơn (load player lazy, destroy khi không dùng)</li>
                     <li>Fix hết lỗi chuyển màn hình và phát nhạc</li>
-                    <li>Tối ưu mượt hơn trên mobile</li>
+                    <li>Cải thiện responsive mobile (nút lớn hơn, thumbnail nhỏ gọn)</li>
                 </ul>
             </div>
         </div>
@@ -126,4 +108,4 @@
 
     <script src="script.js"></script>
 </body>
-</html>
+    </html>
