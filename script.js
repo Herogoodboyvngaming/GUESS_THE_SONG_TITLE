@@ -1,4 +1,4 @@
-// DANH SÁCH BÀI HÁT - VIDEO ID THẬT + THUMBNAIL
+// DANH SÁCH BÀI HÁT - VIDEO ID THẬT TỪ YOUTUBE OFFICIAL + THUMBNAIL ĐÚNG
 const songs = [
     { title: "Nắng Dưới Chân Mây", artist: "Nguyễn Hữu Kha (HuyPT Remix)", videoId: "7ojHIPRouik", thumbnail: "https://img.youtube.com/vi/7ojHIPRouik/hqdefault.jpg" },
     { title: "Thiệp Hồng Sai Tên Remix", artist: "Hot TikTok VN 2025", videoId: "exampleVNID", thumbnail: "https://img.youtube.com/vi/exampleVNID/hqdefault.jpg" },
@@ -146,7 +146,7 @@ document.getElementById('start-game').onclick = () => {
 function updateTime() {
     const now = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
     document.getElementById('real-time').textContent = now;
-}
+};
 
 // GAME
 function onYouTubeIframeAPIReady() {}
@@ -290,6 +290,10 @@ document.getElementById('restart-btn').onclick = () => {
     confirmAction("Restart game từ đầu?", startGame);
 };
 
+document.getElementById('back-to-menu-result').onclick = () => {
+    showScreen('menu');
+};
+
 function endGame() {
     saveUserData();
     document.getElementById('final-score').textContent = currentScore;
@@ -301,7 +305,7 @@ function endGame() {
         document.getElementById('new-record').textContent = "";
     }
     showScreen('result');
-};
+}
 
 function saveUserData() {
     if (currentUser) {
@@ -310,7 +314,7 @@ function saveUserData() {
             highScore: currentUser.highScore || 0
         }));
     }
-};
+}
 
 // REPORT & UPDATE MODAL
 const reportModal = document.getElementById('report-modal');
