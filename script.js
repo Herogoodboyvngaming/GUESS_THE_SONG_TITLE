@@ -1,7 +1,7 @@
-// DANH SÁCH BÀI HÁT - VIDEO ID THẬT TỪ YOUTUBE OFFICIAL + THUMBNAIL ĐÚNG
+// DANH SÁCH BÀI HÁT - VIDEO ID THẬT TỪ YOUTUBE + THUMBNAIL
 const songs = [
     { title: "Nắng Dưới Chân Mây", artist: "Nguyễn Hữu Kha (HuyPT Remix)", videoId: "7ojHIPRouik", thumbnail: "https://img.youtube.com/vi/7ojHIPRouik/hqdefault.jpg" },
-    { title: "Thiệp Hồng Sai Tên Remix", artist: "Hot TikTok VN 2025", videoId: "exampleVNID", thumbnail: "https://img.youtube.com/vi/exampleVNID/hqdefault.jpg" }, // Thay ID thật nếu có
+    { title: "Thiệp Hồng Sai Tên Remix", artist: "Hot TikTok VN 2025", videoId: "exampleVNID", thumbnail: "https://img.youtube.com/vi/exampleVNID/hqdefault.jpg" },
     { title: "Unity", artist: "TheFatRat", videoId: "n8X9_MgEdCg", thumbnail: "https://img.youtube.com/vi/n8X9_MgEdCg/hqdefault.jpg" },
     { title: "Monody", artist: "TheFatRat", videoId: "B7xai5u_tnk", thumbnail: "https://img.youtube.com/vi/B7xai5u_tnk/hqdefault.jpg" },
     { title: "The Calling", artist: "TheFatRat", videoId: "KR-eV7fHNbM", thumbnail: "https://img.youtube.com/vi/KR-eV7fHNbM/hqdefault.jpg" },
@@ -23,13 +23,16 @@ const screens = {
     auth: document.getElementById('auth-screen'),
     menu: document.getElementById('menu-screen'),
     game: document.getElementById('game-screen'),
-    shop: document.getElementById('shop-screen'),
     result: document.getElementById('result-screen')
 };
 
 function showScreen(id) {
     Object.values(screens).forEach(s => s.classList.remove('active'));
     document.getElementById(id + '-screen').classList.add('active');
+    if (id !== 'game' && player) {
+        player.destroy();
+        player = null;
+    }
 }
 
 function confirmAction(message, callback) {
@@ -93,7 +96,7 @@ document.getElementById('register-btn').onclick = () => {
         authMessage.style.color = "#ff4757";
         return;
     }
-    const newUser = { pass: password, highScore: 0, points: 0 };
+    const newUser = { pass: password, highScore: 0 };
     localStorage.setItem(username, JSON.stringify(newUser));
     authMessage.textContent = "Đăng ký thành công! Giờ bạn có thể đăng nhập rồi ✅";
     authMessage.style.color = "#2ed573";
@@ -112,8 +115,6 @@ document.getElementById('logout-btn').onclick = () => {
 function initMenu() {
     document.getElementById('player-name').textContent = currentUser.name;
     document.getElementById('high-score').textContent = currentUser.highScore || 0;
-    document.getElementById('current-points').textContent = currentUser.points || 0;
-    document.getElementById('shop-points').textContent = currentUser.points || 0;
     updateTime();
     setInterval(updateTime, 1000);
     document.getElementById('toggle-tts').textContent = ttsEnabled ? 'Tắt Giọng Đọc' : 'Bật Giọng Đọc';
@@ -128,36 +129,13 @@ document.getElementById('start-game').onclick = () => {
     confirmAction('Bạn có chắc muốn bắt đầu chơi không?', startGame);
 };
 
-document.getElementById('shop-btn').onclick = () => {
-    document.getElementById('shop-points').textContent = currentUser.points || 0;
-    showScreen('shop');
-};
-
-document.getElementById('back-to-menu-shop').onclick = () => showScreen('menu');
-
 function updateTime() {
     const now = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
     document.getElementById('real-time').textContent = now;
 }
 
-// SHOP (COMING SOON)
-document.querySelector('.shop-item .buy-btn').onclick = () => {
-    if ((currentUser.points || 0) >= 500) {
-        confirmAction('Mua gói nhạc nước ngoài khác với 500 điểm?', () => {
-            currentUser.points -= 500;
-            saveUserData();
-            alert('Mua thành công! Gói nhạc sẽ coming soon ⏰ Cảm ơn bạn đã ủng hộ!');
-            document.getElementById('shop-points').textContent = currentUser.points;
-        });
-    } else {
-        alert('Không đủ điểm! Chơi thêm để kiếm điểm nhé.');
-    }
-};
-
-// GAME WITH YOUTUBE PLAYER
-function onYouTubeIframeAPIReady() {
-    // API ready
-}
+// GAME
+function onYouTubeIframeAPIReady() {}
 
 function startGame() {
     currentScore = 0;
@@ -165,6 +143,9 @@ function startGame() {
     updateScore();
     showScreen('game');
     loadNextQuestion();
+    if (ttsEnabled) {
+        speak("Chào mừng bạn đến với game đoán tên bài hát! Hãy lắng nghe đoạn nhạc sau khi bấm nút phát nhé!");
+    }
 }
 
 function loadNextQuestion() {
@@ -197,6 +178,7 @@ function loadNextQuestion() {
         img.src = song.thumbnail;
         img.alt = song.title;
         img.className = 'song-thumbnail';
+        img.loading = 'lazy';
         btn.appendChild(img);
         const pronounceBtn = document.createElement('button');
         pronounceBtn.textContent = '🔊';
@@ -270,9 +252,6 @@ function selectAnswer(isCorrect, btn) {
 
 function updateScore() {
     document.getElementById('score').textContent = currentScore;
-    if (currentScore > (currentUser.points || 0)) {
-        currentUser.points = currentScore;
-    }
 }
 
 document.getElementById('skip-btn').onclick = () => {
@@ -313,8 +292,7 @@ function saveUserData() {
     if (currentUser) {
         localStorage.setItem(currentUser.name, JSON.stringify({
             pass: currentUser.pass,
-            highScore: currentUser.highScore || 0,
-            points: currentUser.points || 0
+            highScore: currentUser.highScore || 0
         }));
     }
 }
