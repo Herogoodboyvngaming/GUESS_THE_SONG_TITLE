@@ -288,9 +288,9 @@ setInterval(() => {
             data.score = score;
             localStorage.setItem(currentUser.email, JSON.stringify(data));
             showNotification("✅ ĐÃ LƯU DATA HOÀN TẤT ✅");
-        }, 30000);
+        }, 300000);
     }
-}, 60000);
+}, 300000);
 
 function showNotification(msg) {
     const notif = document.getElementById('notification');
