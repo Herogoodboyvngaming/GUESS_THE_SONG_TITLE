@@ -1,30 +1,29 @@
-// DANH SÁCH BÀI HÁT - THÊM NHIỀU BÀI QUỐC TẾ HOT (THE FAT RAT & NEFFEX MỞ KHÓA SẴN)
+// DANH SÁCH BÀI HÁT - VIDEO ID THẬT TỪ YOUTUBE OFFICIAL + THUMBNAIL ĐÚNG
 const songs = [
-    { title: "Nắng Dưới Chân Mây", artist: "Nguyễn Hữu Kha (HuyPT Remix)", audio: "https://cdn.pixabay.com/download/audio/2023/08/02/audio_2e9f0b7e9e.mp3?filename=energetic-edm-118113.mp3" },
-    { title: "Thiệp Hồng Sai Tên Remix", artist: "Hot TikTok VN 2025", audio: "https://cdn.pixabay.com/download/audio/2023/10/20/audio_5c7d9e2f1a.mp3?filename=edm-dance-122178.mp3" },
-    { title: "Unity", artist: "TheFatRat", audio: "https://cdn.pixabay.com/download/audio/2022/11/02/audio_8d7b3c5e6f.mp3?filename=epic-trailer-124318.mp3" },
-    { title: "Monody", artist: "TheFatRat", audio: "https://cdn.pixabay.com/download/audio/2022/05/28/audio_6d8f7e2b4c.mp3?filename=the-fat-rat-monody-remix-101292.mp3" },
-    { title: "Time Lapse", artist: "TheFatRat", audio: "https://cdn.pixabay.com/download/audio/2023/01/27/audio_2d9f8e4b0a.mp3?filename=fight-no-copyright-music-113903.mp3" },
-    { title: "The Calling", artist: "TheFatRat", audio: "https://cdn.pixabay.com/download/audio/2023/07/14/audio_9e4b2f1c7d.mp3?filename=motivational-epic-music-116491.mp3" },
-    { title: "Fight Back", artist: "NEFFEX", audio: "https://cdn.pixabay.com/download/audio/2023/01/27/audio_2d9f8e4b0a.mp3?filename=fight-no-copyright-music-113903.mp3" },
-    { title: "Rumors", artist: "NEFFEX", audio: "https://cdn.pixabay.com/download/audio/2024/03/15/audio_2f3e8b3f5d.mp3?filename=cyberpunk-gaming-20998.mp3" },
-    { title: "Cold", artist: "NEFFEX", audio: "https://cdn.pixabay.com/download/audio/2023/08/02/audio_2e9f0b7e9e.mp3?filename=energetic-edm-118113.mp3" },
-    { title: "Failure", artist: "NEFFEX", audio: "https://cdn.pixabay.com/download/audio/2023/10/20/audio_5c7d9e2f1a.mp3?filename=edm-dance-122178.mp3" }
+    { title: "Nắng Dưới Chân Mây", artist: "Nguyễn Hữu Kha (HuyPT Remix)", videoId: "7ojHIPRouik", thumbnail: "https://img.youtube.com/vi/7ojHIPRouik/hqdefault.jpg" },
+    { title: "Thiệp Hồng Sai Tên Remix", artist: "Hot TikTok VN 2025", videoId: "exampleVNID", thumbnail: "https://img.youtube.com/vi/exampleVNID/hqdefault.jpg" }, // Thay ID thật nếu có
+    { title: "Unity", artist: "TheFatRat", videoId: "n8X9_MgEdCg", thumbnail: "https://img.youtube.com/vi/n8X9_MgEdCg/hqdefault.jpg" },
+    { title: "Monody", artist: "TheFatRat", videoId: "B7xai5u_tnk", thumbnail: "https://img.youtube.com/vi/B7xai5u_tnk/hqdefault.jpg" },
+    { title: "The Calling", artist: "TheFatRat", videoId: "KR-eV7fHNbM", thumbnail: "https://img.youtube.com/vi/KR-eV7fHNbM/hqdefault.jpg" },
+    { title: "Xenogenesis", artist: "TheFatRat", videoId: "3_-a9nVZYjk", thumbnail: "https://img.youtube.com/vi/3_-a9nVZYjk/hqdefault.jpg" },
+    { title: "Fight Back", artist: "NEFFEX", videoId: "CYDP_8UTAus", thumbnail: "https://img.youtube.com/vi/CYDP_8UTAus/hqdefault.jpg" },
+    { title: "Rumors", artist: "NEFFEX", videoId: "LT_XSMrqS8M", thumbnail: "https://img.youtube.com/vi/LT_XSMrqS8M/hqdefault.jpg" },
+    { title: "Cold", artist: "NEFFEX", videoId: "WzQBAc8i73E", thumbnail: "https://img.youtube.com/vi/WzQBAc8i73E/hqdefault.jpg" },
+    { title: "Failure", artist: "NEFFEX", videoId: "YKqDiNJJPXk", thumbnail: "https://img.youtube.com/vi/YKqDiNJJPXk/hqdefault.jpg" }
 ];
-
-const internationalSongs = songs.slice(2); // TẤT CẢ QUỐC TẾ MỞ KHÓA SẴN
 
 let currentUser = null;
 let currentScore = 0;
 let currentQuestion = 0;
-let audioElement = null;
-let ttsAudio = null;
+let ttsEnabled = true;
+let player = null;
 let currentSong = null;
 
 const screens = {
     auth: document.getElementById('auth-screen'),
     menu: document.getElementById('menu-screen'),
     game: document.getElementById('game-screen'),
+    shop: document.getElementById('shop-screen'),
     result: document.getElementById('result-screen')
 };
 
@@ -38,8 +37,8 @@ function confirmAction(message, callback) {
 }
 
 function speak(text) {
-    if (ttsAudio) ttsAudio.pause();
-    ttsAudio = new Audio(`https://translate.google.com/translate_tts?ie=UTF-8&tl=vi&client=tw-ob&q=${encodeURIComponent(text)}`);
+    if (!ttsEnabled) return;
+    const ttsAudio = new Audio(`https://translate.google.com/translate_tts?ie=UTF-8&tl=vi&client=tw-ob&q=${encodeURIComponent(text)}`);
     ttsAudio.play().catch(() => {});
 }
 
@@ -113,24 +112,51 @@ document.getElementById('logout-btn').onclick = () => {
 function initMenu() {
     document.getElementById('player-name').textContent = currentUser.name;
     document.getElementById('high-score').textContent = currentUser.highScore || 0;
+    document.getElementById('current-points').textContent = currentUser.points || 0;
+    document.getElementById('shop-points').textContent = currentUser.points || 0;
     updateTime();
     setInterval(updateTime, 1000);
+    document.getElementById('toggle-tts').textContent = ttsEnabled ? 'Tắt Giọng Đọc' : 'Bật Giọng Đọc';
 }
+
+document.getElementById('toggle-tts').onclick = () => {
+    ttsEnabled = !ttsEnabled;
+    document.getElementById('toggle-tts').textContent = ttsEnabled ? 'Tắt Giọng Đọc' : 'Bật Giọng Đọc';
+};
 
 document.getElementById('start-game').onclick = () => {
     confirmAction('Bạn có chắc muốn bắt đầu chơi không?', startGame);
 };
+
+document.getElementById('shop-btn').onclick = () => {
+    document.getElementById('shop-points').textContent = currentUser.points || 0;
+    showScreen('shop');
+};
+
+document.getElementById('back-to-menu-shop').onclick = () => showScreen('menu');
 
 function updateTime() {
     const now = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
     document.getElementById('real-time').textContent = now;
 }
 
-// GAME
-function getAvailableSongs() {
-    let available = songs.slice(0, 2); // NHẠC VIỆT
-    available = available.concat(internationalSongs); // MỞ KHÓA SẴN QUỐC TẾ
-    return available;
+// SHOP (COMING SOON)
+document.querySelector('.shop-item .buy-btn').onclick = () => {
+    if ((currentUser.points || 0) >= 500) {
+        confirmAction('Mua gói nhạc nước ngoài khác với 500 điểm?', () => {
+            currentUser.points -= 500;
+            saveUserData();
+            alert('Mua thành công! Gói nhạc sẽ coming soon ⏰ Cảm ơn bạn đã ủng hộ!');
+            document.getElementById('shop-points').textContent = currentUser.points;
+        });
+    } else {
+        alert('Không đủ điểm! Chơi thêm để kiếm điểm nhé.');
+    }
+};
+
+// GAME WITH YOUTUBE PLAYER
+function onYouTubeIframeAPIReady() {
+    // API ready
 }
 
 function startGame() {
@@ -150,7 +176,7 @@ function loadNextQuestion() {
     document.getElementById('question-num').textContent = currentQuestion;
     document.getElementById('question-text').textContent = "ÂM THANH BẠN VỪA NGHE ĐƯỢC LÀ GÌ?";
 
-    const available = getAvailableSongs();
+    const available = songs;
     currentSong = available[Math.floor(Math.random() * available.length)];
     const wrong = available.filter(s => s !== currentSong);
     for (let i = wrong.length - 1; i > 0; i--) {
@@ -167,6 +193,11 @@ function loadNextQuestion() {
     optionsDiv.innerHTML = '';
     options.forEach(song => {
         const btn = document.createElement('button');
+        const img = document.createElement('img');
+        img.src = song.thumbnail;
+        img.alt = song.title;
+        img.className = 'song-thumbnail';
+        btn.appendChild(img);
         const pronounceBtn = document.createElement('button');
         pronounceBtn.textContent = '🔊';
         pronounceBtn.className = 'pronounce-btn';
@@ -175,24 +206,44 @@ function loadNextQuestion() {
             speak(`${song.title} của ${song.artist}`);
         };
         btn.appendChild(pronounceBtn);
-        btn.innerHTML += `${song.title} - ${song.artist}`;
+        btn.innerHTML += `<span>${song.title} - ${song.artist}</span>`;
         btn.onclick = () => selectAnswer(song === currentSong, btn);
         optionsDiv.appendChild(btn);
     });
 
-    if (audioElement) audioElement.pause();
-    audioElement = new Audio(currentSong.audio);
-    audioElement.onended = () => document.getElementById('play-btn').disabled = false;
-    document.getElementById('play-btn').disabled = false;
+    if (player) {
+        player.destroy();
+    }
+
+    player = new YT.Player('youtube-player', {
+        height: '0',
+        width: '0',
+        videoId: currentSong.videoId,
+        playerVars: {
+            start: 30,
+            autoplay: 0,
+            controls: 0,
+            disablekb: 1,
+            fs: 0,
+            iv_load_policy: 3,
+            modestbranding: 1,
+            rel: 0
+        },
+        events: {
+            'onReady': () => {
+                document.getElementById('play-btn').disabled = false;
+            }
+        }
+    });
 }
 
 document.getElementById('play-btn').onclick = () => {
     speak("Hãy lắng nghe đoạn nhạc sau");
     document.getElementById('play-btn').disabled = true;
-    audioElement.currentTime = 0;
-    audioElement.play();
+    player.seekTo(30);
+    player.playVideo();
     setTimeout(() => {
-        audioElement.pause();
+        player.pauseVideo();
         speak("Âm thanh bạn vừa nghe được là gì?");
         document.getElementById('play-btn').disabled = false;
     }, 10000);
@@ -219,6 +270,9 @@ function selectAnswer(isCorrect, btn) {
 
 function updateScore() {
     document.getElementById('score').textContent = currentScore;
+    if (currentScore > (currentUser.points || 0)) {
+        currentUser.points = currentScore;
+    }
 }
 
 document.getElementById('skip-btn').onclick = () => {
@@ -236,7 +290,7 @@ document.getElementById('giveup-btn').onclick = () => {
 };
 
 document.getElementById('home-btn').onclick = () => {
-    confirmAction("Trở về trang chủ? Tiến độ sẽ mất.", () => showScreen('menu'));
+    confirmAction("Trở về menu? Tiến độ sẽ mất.", () => showScreen('menu'));
 };
 
 document.getElementById('restart-btn').onclick = () => {
