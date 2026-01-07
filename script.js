@@ -1,4 +1,4 @@
-// Danh sách bài hát (giữ nguyên)
+// Danh sách bài hát - cập nhật hot 2026
 const songs = [
     { title: "Nắng Dưới Chân Mây", artist: "Nguyễn Hữu Kha (HuyPT Remix)", audio: "https://cdn.pixabay.com/download/audio/2023/08/02/audio_2e9f0b7e9e.mp3?filename=energetic-edm-118113.mp3" },
     { title: "Thiệp Hồng Sai Tên Remix", artist: "Hot TikTok VN 2025", audio: "https://cdn.pixabay.com/download/audio/2023/10/20/audio_5c7d9e2f1a.mp3?filename=edm-dance-122178.mp3" },
@@ -44,8 +44,11 @@ function speak(text) {
 }
 
 function subtractScore(amount) {
-    if (currentScore >= amount) currentScore -= amount;
-    else currentScore = 0;
+    if (currentScore >= amount) {
+        currentScore -= amount;
+    } else {
+        currentScore = 0;
+    }
     updateScore();
 }
 
@@ -106,15 +109,13 @@ document.getElementById('logout-btn').onclick = () => {
     showScreen('auth');
 };
 
-// =============== MENU - ĐÃ SỬA NÚT BẮT ĐẦU & SHOP ===============
+// =============== MENU ===============
 function initMenu() {
     document.getElementById('player-name').textContent = currentUser.name;
     document.getElementById('high-score').textContent = currentUser.highScore || 0;
     unlockedInternational = currentUser.unlockedInternational || false;
     updateTime();
     setInterval(updateTime, 1000);
-
-    // Cập nhật điểm shop
     document.getElementById('shop-score').textContent = currentUser.points || 0;
 }
 
@@ -155,7 +156,7 @@ document.querySelector('.shop-item .buy-btn').onclick = () => {
     }
 };
 
-// =============== GAME (giữ nguyên) ===============
+// =============== GAME ===============
 function getAvailableSongs() {
     let available = songs.slice(0, 2);
     if (unlockedInternational) available = available.concat(internationalSongs);
@@ -167,10 +168,136 @@ function startGame() {
     currentQuestion = 0;
     updateScore();
     showScreen('game');
-    nextQuestion();
+    nextQuestion(); // Load câu hỏi đầu tiên ngay
 }
 
-// ... (nextQuestion, play-btn, selectAnswer, skip, giveup, home, restart, endGame, saveUserData giữ nguyên như trước)
+function nextQuestion() {
+    currentQuestion++;
+    if (currentQuestion > 10) {
+        endGame();
+        return;
+    }
+    document.getElementById('question-num').textContent = currentQuestion;
+
+    const available = getAvailableSongs();
+    currentSong = available[Math.floor(Math.random() * available.length)];
+    const wrong = available.filter(s => s !== currentSong);
+    // Shuffle wrong answers
+    for (let i = wrong.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [wrong[i], wrong[j]] = [wrong[j], wrong[i]];
+    }
+    const options = [currentSong, wrong[0], wrong[1], wrong[2]];
+    // Shuffle options
+    for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+    }
+
+    const optionsDiv = document.getElementById('options');
+    optionsDiv.innerHTML = '';
+    options.forEach(song => {
+        const btn = document.createElement('button');
+        const pronounceBtn = document.createElement('button');
+        pronounceBtn.textContent = '🔊';
+        pronounceBtn.className = 'pronounce-btn';
+        pronounceBtn.onclick = (e) => {
+            e.stopPropagation();
+            speak(`${song.title} của ${song.artist}`);
+        };
+        btn.appendChild(pronounceBtn);
+        btn.innerHTML += `${song.title} - ${song.artist}`;
+        btn.onclick = () => selectAnswer(song === currentSong, btn);
+        optionsDiv.appendChild(btn);
+    });
+
+    if (audioElement) audioElement.pause();
+    audioElement = new Audio(currentSong.audio);
+    audioElement.onended = () => document.getElementById('play-btn').disabled = false;
+}
+
+document.getElementById('play-btn').onclick = () => {
+    speak("Hãy lắng nghe đoạn nhạc sau");
+    document.getElementById('play-btn').disabled = true;
+    audioElement.currentTime = 0;
+    audioElement.play();
+    setTimeout(() => {
+        audioElement.pause();
+        speak("Âm thanh bạn vừa nghe được là gì?");
+        document.getElementById('play-btn').disabled = false;
+    }, 10000);
+};
+
+function selectAnswer(isCorrect, btn) {
+    const message = isCorrect 
+        ? "Bạn chắc chứ? Chọn đúng +50 điểm!" 
+        : "Bạn chắc chứ? Chọn sai sẽ bị trừ 10 điểm (nếu còn điểm)!";
+    confirmAction(message, () => {
+        if (isCorrect) {
+            currentScore += 50;
+            btn.style.background = 'linear-gradient(45deg, #2ed573, #51e898)';
+            speak("Chính xác! Chúc mừng!");
+        } else {
+            subtractScore(10);
+            btn.style.background = 'linear-gradient(45deg, #ff4757, #ff7675)';
+            speak("Sai rồi! Tiếp tục cố lên!");
+        }
+        updateScore();
+        setTimeout(nextQuestion, 2000);
+    });
+}
+
+function updateScore() {
+    document.getElementById('score').textContent = currentScore;
+    if (currentScore > (currentUser.points || 0)) {
+        currentUser.points = currentScore;
+    }
+}
+
+document.getElementById('skip-btn').onclick = () => {
+    confirmAction("Skip câu này sẽ trừ 30 điểm (nếu còn điểm). Chắc chứ?", () => {
+        subtractScore(30);
+        nextQuestion();
+    });
+};
+
+document.getElementById('giveup-btn').onclick = () => {
+    confirmAction("Từ bỏ sẽ trừ 10 điểm (nếu còn điểm). Chắc chứ?", () => {
+        subtractScore(10);
+        showScreen('menu');
+    });
+};
+
+document.getElementById('home-btn').onclick = () => {
+    confirmAction("Trở về trang chủ? Tiến độ sẽ mất.", () => showScreen('menu'));
+};
+
+document.getElementById('restart-btn').onclick = () => {
+    confirmAction("Restart game từ đầu?", startGame);
+};
+
+function endGame() {
+    saveUserData();
+    document.getElementById('final-score').textContent = currentScore;
+    if (currentScore > (currentUser.highScore || 0)) {
+        currentUser.highScore = currentScore;
+        document.getElementById('new-record').textContent = "KỶ LỤC MỚI!";
+    } else {
+        document.getElementById('new-record').textContent = "";
+    }
+    showScreen('result');
+}
+
+function saveUserData() {
+    if (currentUser) {
+        localStorage.setItem(currentUser.name, JSON.stringify({
+            pass: currentUser.pass,
+            highScore: currentUser.highScore || 0,
+            points: currentUser.points || 0,
+            unlockedInternational: currentUser.unlockedInternational || false
+        }));
+    }
+}
 
 // =============== REPORT BUG MODAL ===============
 const reportModal = document.getElementById('report-modal');
