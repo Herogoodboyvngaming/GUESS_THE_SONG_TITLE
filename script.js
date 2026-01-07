@@ -288,7 +288,7 @@ setInterval(() => {
             data.score = score;
             localStorage.setItem(currentUser.email, JSON.stringify(data));
             showNotification("✅ ĐÃ LƯU DATA HOÀN TẤT ✅");
-        }, 300000);
+        }, 30000);
     }
 }, 300000);
 
