@@ -1,4 +1,4 @@
-// DANH SÁCH BÀI HÁT - VIDEO ID THẬT TỪ YOUTUBE + THUMBNAIL
+// DANH SÁCH BÀI HÁT - VIDEO ID THẬT + THUMBNAIL
 const songs = [
     { title: "Nắng Dưới Chân Mây", artist: "Nguyễn Hữu Kha (HuyPT Remix)", videoId: "7ojHIPRouik", thumbnail: "https://img.youtube.com/vi/7ojHIPRouik/hqdefault.jpg" },
     { title: "Thiệp Hồng Sai Tên Remix", artist: "Hot TikTok VN 2025", videoId: "exampleVNID", thumbnail: "https://img.youtube.com/vi/exampleVNID/hqdefault.jpg" },
@@ -40,9 +40,11 @@ function confirmAction(message, callback) {
 }
 
 function speak(text) {
-    if (!ttsEnabled) return;
-    const ttsAudio = new Audio(`https://translate.google.com/translate_tts?ie=UTF-8&tl=vi&client=tw-ob&q=${encodeURIComponent(text)}`);
-    ttsAudio.play().catch(() => {});
+    if (!ttsEnabled || !('speechSynthesis' in window)) return;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'vi-VN';
+    utterance.rate = 0.9;
+    window.speechSynthesis.speak(utterance);
 }
 
 function subtractScore(amount) {
@@ -54,8 +56,18 @@ function subtractScore(amount) {
     updateScore();
 }
 
-// AUTH
+// AUTH + TỰ ĐĂNG NHẬP RELOAD
 const authMessage = document.getElementById('auth-message');
+const savedUsername = localStorage.getItem('lastLoggedUser');
+
+if (savedUsername) {
+    const userData = localStorage.getItem(savedUsername);
+    if (userData) {
+        currentUser = { name: savedUsername, ...JSON.parse(userData) };
+        initMenu();
+        showScreen('menu');
+    }
+}
 
 document.getElementById('login-btn').onclick = () => {
     const username = document.getElementById('username').value.trim();
@@ -73,6 +85,7 @@ document.getElementById('login-btn').onclick = () => {
         const data = JSON.parse(userData);
         if (data.pass === password) {
             currentUser = { name: username, ...data };
+            localStorage.setItem('lastLoggedUser', username);
             authMessage.textContent = "Đăng nhập thành công ✅";
             authMessage.style.color = "#2ed573";
             setTimeout(() => { initMenu(); showScreen('menu'); }, 1000);
@@ -104,6 +117,7 @@ document.getElementById('register-btn').onclick = () => {
 
 document.getElementById('logout-btn').onclick = () => {
     saveUserData();
+    localStorage.removeItem('lastLoggedUser');
     currentUser = null;
     document.getElementById('username').value = '';
     document.getElementById('password').value = '';
@@ -282,11 +296,12 @@ function endGame() {
     if (currentScore > (currentUser.highScore || 0)) {
         currentUser.highScore = currentScore;
         document.getElementById('new-record').textContent = "KỶ LỤC MỚI!";
+        saveUserData();
     } else {
         document.getElementById('new-record').textContent = "";
     }
     showScreen('result');
-}
+};
 
 function saveUserData() {
     if (currentUser) {
@@ -295,9 +310,9 @@ function saveUserData() {
             highScore: currentUser.highScore || 0
         }));
     }
-}
+};
 
-// REPORT BUG MODAL
+// REPORT & UPDATE MODAL
 const reportModal = document.getElementById('report-modal');
 const reportBtn = document.getElementById('report-btn');
 const closeModal = document.getElementById('close-modal');
@@ -327,7 +342,6 @@ sendReport.onclick = () => {
     document.getElementById('report-message').value = '';
 };
 
-// UPDATE MODAL
 const updateModal = document.getElementById('update-modal');
 const updateBtn = document.getElementById('update-btn');
 const closeUpdateModal = document.getElementById('close-update-modal');
