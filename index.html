@@ -6,9 +6,10 @@
     <title>WEBSITE NGHE NHẠC ĐOÁN TÊN BÀI HÁT</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.youtube.com/iframe_api"></script> <!-- YouTube API cho audio -->
 </head>
 <body>
-    <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ (TRANG CHỦ) -->
+    <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ -->
     <div id="auth-screen" class="screen active">
         <div class="container">
             <h1>WEBSITE NGHE NHẠC<br>ĐOÁN TÊN BÀI HÁT</h1>
@@ -28,13 +29,16 @@
         <div class="container">
             <h1>Xin chào, <span id="player-name"></span>!</h1>
             <p>Điểm cao nhất: <span id="high-score">0</span></p>
+            <p>Điểm hiện tại: <span id="current-points">0</span></p>
+            <button id="toggle-tts" class="big-btn">Tắt Giọng Đọc</button>
             <button id="start-game" class="big-btn">BẮT ĐẦU CHƠI</button>
+            <button id="shop-btn" class="big-btn">SHOP</button>
             <button id="logout-btn">Đăng xuất</button>
             <div class="time" id="real-time"></div>
         </div>
     </div>
 
-    <!-- MÀN HÌNH CHƠI (TRANG CHƠI) -->
+    <!-- MÀN HÌNH GAME -->
     <div id="game-screen" class="screen">
         <div class="game-header">
             <div>Điểm: <span id="score">0</span></div>
@@ -43,13 +47,29 @@
         <div class="container game-container">
             <h2 id="question-text">ÂM THANH BẠN VỪA NGHE ĐƯỢC LÀ GÌ?</h2>
             <button id="play-btn" class="play-btn">▶ PHÁT NHẠC (10 giây)</button>
+            <div id="youtube-player" style="display:none;"></div> <!-- Player YouTube ẩn -->
             <div id="options" class="options"></div>
             <div class="game-controls">
-                <button id="home-btn">Trở về trang chủ</button>
+                <button id="home-btn">Trở về menu</button>
                 <button id="giveup-btn">Từ bỏ (-10)</button>
                 <button id="skip-btn">Skip (-30)</button>
                 <button id="restart-btn">Restart</button>
             </div>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH SHOP -->
+    <div id="shop-screen" class="screen">
+        <div class="container">
+            <h1>SHOP</h1>
+            <p>Điểm hiện tại: <span id="shop-points">0</span></p>
+            <div class="shop-item">
+                <h3>Gói Nhạc Nước Ngoài Khác</h3>
+                <p>(Coming Soon ⏰)</p>
+                <p>Giá: 500 điểm</p>
+                <button class="buy-btn">Mua ngay</button>
+            </div>
+            <button id="back-to-menu-shop">Quay lại</button>
         </div>
     </div>
 
@@ -59,7 +79,7 @@
             <h1>Hoàn thành!</h1>
             <p>Điểm cuối cùng: <span id="final-score">0</span></p>
             <p id="new-record"></p>
-            <button id="back-to-menu-result">Về trang chủ</button>
+            <button id="back-to-menu-result">Về menu</button>
         </div>
     </div>
 
@@ -89,21 +109,17 @@
     <div id="update-modal" class="modal">
         <div class="modal-content">
             <span id="close-update-modal" class="close">&times;</span>
-            <h2>THÔNG TIN & UPDATE TỪ GROK</h2>
+            <h2>THÔNG TIN & UPDATE</h2>
             <div id="update-content">
-                <p><strong>Ngày update: 07/01/2026</strong></p>
+                <p><strong>Ngày update mới nhất: 07/01/2026</strong></p>
                 <ul>
-                    <li>Fix tất cả lỗi nút bấm không phản hồi</li>
-                    <li>Fix lỗi bấm BẮT ĐẦU CHƠI chuyển vào trang chơi ngay với câu hỏi đầu tiên</li>
-                    <li>Thêm nút Trở về trang chủ ở trang chơi</li>
-                    <li>Mở khóa sẵn tất cả nhạc quốc tế (TheFatRat & NEFFEX + thêm nhiều bài hot)</li>
-                    <li>Bỏ shop vì nhạc quốc tế đã mở khóa sẵn</li>
-                    <li>Thêm nút THÔNG TIN & UPDATE hiện danh sách update</li>
-                    <li>Thêm nhiều bài hát quốc tế hot (Unity, Monody, Fight Back, Xenogenesis, Rumors, Cold...)</li>
-                    <li>Tối ưu giao diện đẹp hơn, mượt hơn trên mobile</li>
-                    <li>Fix giọng đọc TTS và phát nhạc ổn định</li>
+                    <li>Chuyển audio sang YouTube Player API (phát chuẩn gốc từ video official)</li>
+                    <li>Thêm thumbnail đúng từ YouTube cho đáp án</li>
+                    <li>Shop có gói Coming Soon ⏰</li>
+                    <li>Nút bật/tắt giọng đọc TTS</li>
+                    <li>Fix hết lỗi chuyển màn hình và phát nhạc</li>
+                    <li>Tối ưu mượt hơn trên mobile</li>
                 </ul>
-                <p>Cảm ơn Nguyễn Chí DỰ đã kiên nhẫn test ♥️🇻🇳</p>
             </div>
         </div>
     </div>
