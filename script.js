@@ -307,10 +307,42 @@ function addPlayerDivs() {
     const musicPlayer = document.querySelector('.music-player');
     if (musicPlayer && !document.getElementById('songClipPlayer')) {
         musicPlayer.insertAdjacentHTML('beforeend', `
-            <div id="songClipPlayer" style="margin:20px 0; border-radius:15px; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.5); width:100%; background:#000; height:80px;"></div>
+            <div id="songClipPlayerContainer" style="position:relative; margin:20px 0; border-radius:15px; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.5); width:100%; height:80px; background:#000;">
+                <div id="songClipPlayer"></div>
+                <!-- Lớp overlay đen che hoàn toàn thumbnail & tiêu đề -->
+                <div style="position:absolute; top:0; left:0; width:100%; height:100%; background:#000; z-index:10;"></div>
+            </div>
             <div id="bgMusicPlayer" style="display:none;"></div>
         `);
     }
+}
+
+function loadNewSong() {
+    currentSong = songs[Math.floor(Math.random() * songs.length)];
+    if (player) player.destroy();
+
+    player = new YT.Player('songClipPlayer', {
+        height: '80',
+        width: '100%',
+        videoId: currentSong.id,
+        playerVars: {
+            start: Math.floor(Math.random() * 40) + 20,
+            end: Math.floor(Math.random() * 20) + 60,
+            autoplay: 0,
+            controls: 0,
+            disablekb: 1,
+            fs: 0,
+            iv_load_policy: 3,
+            modestbranding: 1,
+            rel: 0,
+            showinfo: 0,
+            playsinline: 1
+        },
+        events: {
+            onReady: () => console.log("Load bài thành công (ẩn hoàn toàn): " + currentSong.title),
+            onError: () => loadNewSong()
+        }
+    });
 }
 
 window.onload = () => {
