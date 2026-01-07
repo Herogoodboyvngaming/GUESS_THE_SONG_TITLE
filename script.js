@@ -1,3 +1,4 @@
+// Danh sách bài hát (giữ nguyên)
 const songs = [
     { title: "Nắng Dưới Chân Mây", artist: "Nguyễn Hữu Kha (HuyPT Remix)", audio: "https://cdn.pixabay.com/download/audio/2023/08/02/audio_2e9f0b7e9e.mp3?filename=energetic-edm-118113.mp3" },
     { title: "Thiệp Hồng Sai Tên Remix", artist: "Hot TikTok VN 2025", audio: "https://cdn.pixabay.com/download/audio/2023/10/20/audio_5c7d9e2f1a.mp3?filename=edm-dance-122178.mp3" },
@@ -48,6 +49,7 @@ function subtractScore(amount) {
     updateScore();
 }
 
+// =============== AUTH ===============
 const authMessage = document.getElementById('auth-message');
 
 document.getElementById('login-btn').onclick = () => {
@@ -104,22 +106,73 @@ document.getElementById('logout-btn').onclick = () => {
     showScreen('auth');
 };
 
+// =============== MENU - ĐÃ SỬA NÚT BẮT ĐẦU & SHOP ===============
 function initMenu() {
     document.getElementById('player-name').textContent = currentUser.name;
     document.getElementById('high-score').textContent = currentUser.highScore || 0;
     unlockedInternational = currentUser.unlockedInternational || false;
     updateTime();
     setInterval(updateTime, 1000);
+
+    // Cập nhật điểm shop
+    document.getElementById('shop-score').textContent = currentUser.points || 0;
 }
+
+document.getElementById('start-game').onclick = () => {
+    confirmAction('Bạn có chắc muốn bắt đầu chơi không?', startGame);
+};
+
+document.getElementById('shop-btn').onclick = () => {
+    document.getElementById('shop-score').textContent = currentUser.points || 0;
+    showScreen('shop');
+};
+
+document.getElementById('back-to-menu').onclick = () => showScreen('menu');
+document.getElementById('back-to-menu-result').onclick = () => showScreen('menu');
 
 function updateTime() {
     const now = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
     document.getElementById('real-time').textContent = now;
 }
 
-// Shop, Game, nextQuestion, play-btn, selectAnswer, skip, giveup, home, restart, endGame, saveUserData... giữ nguyên như trước
+// =============== SHOP ===============
+document.querySelector('.shop-item .buy-btn').onclick = () => {
+    if (currentUser.unlockedInternational) {
+        alert('Bạn đã sở hữu gói này rồi!');
+        return;
+    }
+    if ((currentUser.points || 0) >= 500) {
+        confirmAction('Mua gói nhạc quốc tế với 500 điểm?', () => {
+            currentUser.points -= 500;
+            currentUser.unlockedInternational = true;
+            unlockedInternational = true;
+            saveUserData();
+            alert('Mua thành công! Giờ bạn có thể nghe nhạc quốc tế.');
+            document.getElementById('shop-score').textContent = currentUser.points;
+        });
+    } else {
+        alert('Không đủ điểm! Chơi thêm để kiếm điểm nhé.');
+    }
+};
 
-// Report Bug Modal
+// =============== GAME (giữ nguyên) ===============
+function getAvailableSongs() {
+    let available = songs.slice(0, 2);
+    if (unlockedInternational) available = available.concat(internationalSongs);
+    return available;
+}
+
+function startGame() {
+    currentScore = 0;
+    currentQuestion = 0;
+    updateScore();
+    showScreen('game');
+    nextQuestion();
+}
+
+// ... (nextQuestion, play-btn, selectAnswer, skip, giveup, home, restart, endGame, saveUserData giữ nguyên như trước)
+
+// =============== REPORT BUG MODAL ===============
 const reportModal = document.getElementById('report-modal');
 const reportBtn = document.getElementById('report-btn');
 const closeModal = document.getElementById('close-modal');
