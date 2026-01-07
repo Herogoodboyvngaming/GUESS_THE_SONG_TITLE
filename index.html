@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ (TRANG CHỦ) -->
     <div id="auth-screen" class="screen active">
         <div class="container">
             <h1>WEBSITE NGHE NHẠC<br>ĐOÁN TÊN BÀI HÁT</h1>
@@ -22,17 +23,18 @@
         </div>
     </div>
 
+    <!-- MÀN HÌNH MENU -->
     <div id="menu-screen" class="screen">
         <div class="container">
             <h1>Xin chào, <span id="player-name"></span>!</h1>
             <p>Điểm cao nhất: <span id="high-score">0</span></p>
             <button id="start-game" class="big-btn">BẮT ĐẦU CHƠI</button>
-            <button id="shop-btn" class="big-btn">SHOP</button>
             <button id="logout-btn">Đăng xuất</button>
             <div class="time" id="real-time"></div>
         </div>
     </div>
 
+    <!-- MÀN HÌNH CHƠI (TRANG CHƠI) -->
     <div id="game-screen" class="screen">
         <div class="game-header">
             <div>Điểm: <span id="score">0</span></div>
@@ -51,19 +53,7 @@
         </div>
     </div>
 
-    <div id="shop-screen" class="screen">
-        <div class="container">
-            <h1>SHOP</h1>
-            <p>Điểm hiện tại: <span id="shop-score">0</span></p>
-            <div class="shop-item" data-pack="international" data-cost="500">
-                <h3>Gói Nhạc Quốc Tế (NEFFEX + TheFatRat)</h3>
-                <p>Giá: 500 điểm</p>
-                <button class="buy-btn">Mua ngay</button>
-            </div>
-            <button id="back-to-menu">Quay lại</button>
-        </div>
-    </div>
-
+    <!-- MÀN HÌNH KẾT QUẢ -->
     <div id="result-screen" class="screen">
         <div class="container">
             <h1>Hoàn thành!</h1>
@@ -73,14 +63,16 @@
         </div>
     </div>
 
+    <!-- FOOTER -->
     <footer>
         <p>MADE IN VN 🇻🇳</p>
         <p>MADE BY: NGUYỄN CHÍ DỰ ♥️ 🇻🇳</p>
         <p>CẢM ƠN BẠN ĐÃ CHƠI ♥️♥️♥️🇻🇳🇻🇳🇻🇳</p>
         <button id="report-btn" class="report-btn">REPORT BUGS</button>
+        <button id="update-btn" class="report-btn">THÔNG TIN & UPDATE</button>
     </footer>
 
-    <!-- Modal Report Bug -->
+    <!-- MODAL REPORT BUG -->
     <div id="report-modal" class="modal">
         <div class="modal-content">
             <span id="close-modal" class="close">&times;</span>
@@ -93,6 +85,29 @@
         </div>
     </div>
 
+    <!-- MODAL THÔNG TIN & UPDATE -->
+    <div id="update-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-update-modal" class="close">&times;</span>
+            <h2>THÔNG TIN & UPDATE TỪ GROK</h2>
+            <div id="update-content">
+                <p><strong>Ngày update: 07/01/2026</strong></p>
+                <ul>
+                    <li>Fix tất cả lỗi nút bấm không phản hồi</li>
+                    <li>Fix lỗi bấm BẮT ĐẦU CHƠI chuyển vào trang chơi ngay với câu hỏi đầu tiên</li>
+                    <li>Thêm nút Trở về trang chủ ở trang chơi</li>
+                    <li>Mở khóa sẵn tất cả nhạc quốc tế (TheFatRat & NEFFEX + thêm nhiều bài hot)</li>
+                    <li>Bỏ shop vì nhạc quốc tế đã mở khóa sẵn</li>
+                    <li>Thêm nút THÔNG TIN & UPDATE hiện danh sách update</li>
+                    <li>Thêm nhiều bài hát quốc tế hot (Unity, Monody, Fight Back, Xenogenesis, Rumors, Cold...)</li>
+                    <li>Tối ưu giao diện đẹp hơn, mượt hơn trên mobile</li>
+                    <li>Fix giọng đọc TTS và phát nhạc ổn định</li>
+                </ul>
+                <p>Cảm ơn Nguyễn Chí DỰ đã kiên nhẫn test ♥️🇻🇳</p>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
-                </html>
+</html>
