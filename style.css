@@ -49,11 +49,12 @@ h1 {
 .screen {
     display: none;
     min-height: 100vh;
+    flex: 1;
+    flex-direction: column;
 }
 
 .screen.active {
     display: flex;
-    flex-direction: column;
 }
 
 /* NÚT CHUNG */
@@ -186,23 +187,61 @@ h1 {
     font-size: 1.3rem;
 }
 
-/* FOOTER & MODAL */
+/* FOOTER - FIX LỖI ĐẨY LÊN GIỮA MÀN HÌNH */
 footer {
-    padding: 20px;
-    background: rgba(0,0,0,0.4);
+    margin-top: auto; /* ĐẨY FOOTER XUỐNG DƯỚI CÙNG */
+    padding: 30px;
+    background: rgba(0,0,0,0.5);
+    text-align: center;
+    width: 100%;
 }
 
 .report-btn, #update-btn {
-    margin: 8px;
-    padding: 12px 28px;
-    font-size: 1rem;
+    display: block;
+    width: 90%;
+    max-width: 400px;
+    margin: 15px auto;
+    padding: 16px;
+    font-size: 1.2rem;
+    background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(255,107,107,0.4);
+    transition: transform 0.2s ease;
+}
+
+.report-btn:hover, #update-btn:hover {
+    transform: translateY(-5px);
+}
+
+/* MODAL - FIX CĂN GIỮA */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    align-items: center;
+    justify-content: center;
 }
 
 .modal-content {
-    padding: 30px;
+    padding: 35px;
+    border-radius: 30px;
+    width: 90%;
+    max-width: 500px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.5);
+    text-align: center;
+    position: relative;
 }
 
-/* RESPONSIVE MAX */
+/* RESPONSIVE */
 @media (max-width: 480px) {
     h1 { font-size: 2.4rem; }
     .big-btn, #login-btn, #register-btn, #logout-btn, #back-to-menu-result, #toggle-tts {
@@ -213,4 +252,5 @@ footer {
     .options button { padding-left: 75px; font-size: 1rem; }
     .song-thumbnail { width: 55px; height: 55px; }
     .pronounce-btn { font-size: 1.7rem; }
-}
+    footer { padding: 25px; }
+    }
