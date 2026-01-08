@@ -13,10 +13,9 @@
             <h1 class="title">WEBSITE NGHE NHẠC ĐOÁN BÀI HÁT</h1>
             <p class="subtitle">
                 ĐƯỢC TẠO BỞI: Nguyễn Chí Dự 🇻🇳♥️🇻🇳<br>
-                <small>Phiên bản 2.0 (08/01/2026) • Thêm full Sơn Tùng M-TP + Alan Walker<br>
-                Chỉ nghe nhạc đoán tên – siêu khó, siêu fair!<br>
-                Phát nhạc thật từ NEFFEX, TheFatRat, Alan Walker & nghệ sĩ Việt<br>
-                Có lỗi kéo xuống chân trang bấm nút báo lỗi nhé!</small>
+                <small>Phiên bản 2.1 – UPDATE LỚN CHƯA TỪNG THẤY CỦA TUI OMG!<br>
+                Thêm Admin Panel, Moderator, Slash Commands, Profile ID, Anti-cheat<br>
+                Bắt buộc online + tài khoản để chơi – siêu hiện đại, siêu quản lý!</small>
             </p>
 
             <button class="btn primary large" onclick="showLogin()">ĐĂNG NHẬP</button>
@@ -33,8 +32,9 @@
         <div class="container">
             <h1>Xin chào!</h1>
             <p id="welcomeUser" class="welcome-text">Đang tải...</p>
+            <p id="userProfile" style="font-size:1.2rem; color:#a0e7ff; margin:20px 0;"></p>
 
-            <button class="btn primary extra-large" onclick="startGame()">🎵 BẮT ĐẦU CHƠI</button>
+            <button class="btn primary extra-large" onclick="checkOnlineAndLogin()">🎵 BẮT ĐẦU CHƠI</button>
 
             <label class="tts-toggle">
                 <input type="checkbox" id="ttsToggle" checked>
@@ -46,6 +46,9 @@
             <button class="btn danger large" onclick="logout()">🚪 ĐĂNG XUẤT</button>
 
             <button class="btn danger large" onclick="deleteAccountConfirm()">🗑️ XÓA TÀI KHOẢN</button>
+
+            <!-- NÚT ADMIN PANEL MỚI -->
+            <button class="btn danger large" onclick="showAdminLogin()">🔧 ADMIN PANEL</button>
 
             <div class="footer">
                 <button class="btn small outline" onclick="showReportBug()">🛠️ Báo lỗi</button>
@@ -67,7 +70,7 @@
         </div>
 
         <div class="answer-section">
-            <input type="text" id="answerInput" placeholder="Nhập tên bài hát ở đây..." autocomplete="off">
+            <input type="text" id="answerInput" placeholder="Nhập tên bài hát hoặc lệnh admin (/help)..." autocomplete="off">
             <button class="btn primary" onclick="submitAnswer()">GỬI ĐÁP ÁN</button>
             <button class="btn giveup" onclick="surrenderConfirm()">😞 CHỊU THUA</button>
         </div>
