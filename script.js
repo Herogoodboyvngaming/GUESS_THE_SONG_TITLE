@@ -6,8 +6,14 @@ let player;
 let bgMusicPlayer;
 let currentSong = null;
 let loginAttempts = 0;
+let isOnline = navigator.onLine;
+let commandsEnabled = true;
 
-// Danh sách bài hát - FULL SƠN TÙNG M-TP + ALAN WALKER + NEFFEX & TheFatRat
+// Admin credentials (bí mật tuyệt đối!!)
+const ADMIN_USERNAME = "herogoodboyvngaming";
+const ADMIN_PASSWORD = "Nguyen2009";
+
+// Danh sách bài hát - FULL SƠN TÙNG M-TP + ALAN WALKER ("Fire!") + NEFFEX & TheFatRat
 const songs = [
     // NEFFEX
     { title: "Fight Back", artist: "NEFFEX", id: "CYDP_8UTAus" },
@@ -35,7 +41,7 @@ const songs = [
     { title: "Warbringer", artist: "TheFatRat", id: "jiT2Mak9AzI" },
     { title: "Hiding in the Blue", artist: "TheFatRat", id: "lW0DIsC7n1U" },
 
-    // ALAN WALKER FULL HOT (có "Fire!")
+    // ALAN WALKER FULL (có "Fire!")
     { title: "Faded", artist: "Alan Walker", id: "60ItHLz5WEA" },
     { title: "Alone", artist: "Alan Walker", id: "1-xGerv5FOk" },
     { title: "Sing Me to Sleep", artist: "Alan Walker", id: "TCBBBw1j4eA" },
@@ -64,6 +70,20 @@ const songs = [
 function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
+}
+
+// Kiểm tra online + login trước khi chơi
+function checkOnlineAndLogin() {
+    if (!navigator.onLine) {
+        alert("Bạn cần kết nối WiFi hoặc 4G để chơi game!");
+        return;
+    }
+    if (!currentUser) {
+        alert("Bạn cần đăng nhập hoặc đăng ký tài khoản để chơi!");
+        showLogin();
+        return;
+    }
+    startGame();
 }
 
 function showLogin() {
@@ -111,11 +131,12 @@ function submitBug() {
 function showInfo() {
     openModal(`
         <h2>ℹ️ THÔNG TIN & UPDATE</h2>
-        <p><strong>Phiên bản 2.0 (08/01/2026)</p>
-        <p>- Thêm full Sơn Tùng M-TP + Alan Walker ("Fire!" + hit hot)<br>
-        - Xóa tài khoản an toàn: double confirm + nhập mật khẩu<br>
-        - Đoán sai trừ 10 điểm + Chịu thua hiện đáp án<br>
-        - Ẩn hoàn toàn YouTube player</p>
+        <p><strong>Phiên bản 2.1 – UPDATE LỚN CHƯA TỪNG THẤY CỦA TUI OMG!</p>
+        <p>- Thêm Admin Panel + Moderator + Slash Commands<br>
+        - Thêm Profile ID ngẫu nhiên<br>
+        - Anti-cheat tự động ban<br>
+        - Bắt buộc online + tài khoản để chơi<br>
+        - Thêm full Sơn Tùng + Alan Walker "Fire!"</p>
         <p>Liên hệ hỗ trợ: Herogoodboymc2024@gmail.com</p>
     `);
 }
@@ -137,13 +158,25 @@ function speak(text) {
     speechSynthesis.speak(utterance);
 }
 
+function generateUserID() {
+    return "USER#" + Math.floor(Math.random() * 9000 + 1000);
+}
+
+function updateProfile() {
+    if (currentUser) {
+        document.getElementById('userProfile').textContent = `Tên: ${currentUser.name} | ID: ${currentUser.id}`;
+    }
+}
+
 function register() {
     const name = document.getElementById('regName').value.trim();
     const email = document.getElementById('regEmail').value.trim();
     const pass = document.getElementById('regPass').value;
     if (!name || !email || !pass) return alert("Điền đầy đủ!");
-    localStorage.setItem(email, JSON.stringify({ name, pass, score: 0, firstTime: true }));
-    alert("Đăng ký thành công!");
+
+    const newID = generateUserID();
+    localStorage.setItem(email, JSON.stringify({ name, pass, score: 0, firstTime: true, id: newID }));
+    alert("Đăng ký thành công! ID của bạn: " + newID);
     closeModal();
 }
 
@@ -163,10 +196,11 @@ function login() {
         return;
     }
 
-    currentUser = { email: input, name: user.name, score: user.score || 0 };
+    currentUser = { email: input, name: user.name, score: user.score || 0, id: user.id || generateUserID() };
     localStorage.setItem('lastLoggedInUser', input);
     showScreen('mainHome');
     document.getElementById('welcomeUser').textContent = `Xin chào ${user.name}!`;
+    updateProfile();
     speak(`Chào mừng ${user.name} quay lại trò chơi nghe nhạc đoán tên bài hát nhé!`);
     closeModal();
 
@@ -221,7 +255,6 @@ function logout() {
     }
 }
 
-// XÓA TÀI KHOẢN - DOUBLE CONFIRM + NHẬP MẬT KHẨU
 function deleteAccountConfirm() {
     if (confirm("Bạn chắc chắn muốn xóa tài khoản của mình chứ, một khi xóa là không thể khôi phục bạn đồng ý chứ?")) {
         openModal(`
@@ -260,6 +293,55 @@ function finalDeleteAccount() {
     showScreen('mainMenu');
     showNotification("❌ Tài khoản đã bị xóa vĩnh viễn!");
     speak("Tài khoản đã bị xóa hoàn toàn. Cảm ơn bạn đã chơi trò chơi của Nguyễn Chí Dự!");
+}
+
+// ADMIN PANEL
+function showAdminLogin() {
+    openModal(`
+        <h2>🔧 ADMIN PANEL</h2>
+        <p style="color:#ff6b6b; font-weight:bold;">Này chỉ dành cho admin người thường không thể truy cập vào được!</p>
+        <input type="text" id="adminUser" placeholder="Tên đăng nhập admin" required><br><br>
+        <input type="password" id="adminPass" placeholder="Mật khẩu admin" required><br><br>
+        <button class="btn danger" onclick="loginAdmin()">ĐĂNG NHẬP ADMIN</button>
+    `);
+}
+
+function loginAdmin() {
+    const user = document.getElementById('adminUser').value.trim();
+    const pass = document.getElementById('adminPass').value;
+
+    if (user === ADMIN_USERNAME && pass === ADMIN_PASSWORD) {
+        closeModal();
+        showAdminPanel();
+    } else {
+        alert("Sai tài khoản hoặc mật khẩu admin!");
+    }
+}
+
+function showAdminPanel() {
+    openModal(`
+        <h2>🔧 ADMIN PANEL - MODERATOR</h2>
+        <p>Chào mừng Admin <strong>${ADMIN_USERNAME}</strong>!</p>
+        <p>Lệnh slash command hiện tại: <strong>${commandsEnabled ? "BẬT" : "TẮT"}</strong></p>
+        <button class="btn ${commandsEnabled ? 'warning' : 'primary'}" onclick="toggleCommands()">
+            ${commandsEnabled ? 'TẮT' : 'BẬT'} LỆNH COMMAND
+        </button>
+        <hr>
+        <p><strong>Danh sách lệnh:</strong></p>
+        <ul style="text-align:left;">
+            <li>/addpoint [số] → cộng điểm cho bạn</li>
+            <li>/ban [ID] → ban người dùng</li>
+            <li>/kick [ID] → đá người dùng (đóng tab)</li>
+            <li>/help → xem lệnh</li>
+        </ul>
+        <p>Nhập lệnh vào ô đoán bài hát để dùng (chỉ admin).</p>
+    `);
+}
+
+function toggleCommands() {
+    commandsEnabled = !commandsEnabled;
+    showNotification(commandsEnabled ? "✅ Đã BẬT lệnh command!" : "❌ Đã TẮT lệnh command!");
+    showAdminPanel();
 }
 
 const tag = document.createElement('script');
@@ -314,10 +396,20 @@ function playClip() {
 }
 
 function submitAnswer() {
-    const input = document.getElementById('answerInput').value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    const correct = currentSong.title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const input = document.getElementById('answerInput').value.trim();
 
-    if (input && (input.includes(correct) || correct.includes(input))) {
+    // Xử lý lệnh admin trước
+    if (input.startsWith("/") && commandsEnabled && currentUser && currentUser.email.includes("herogoodboy")) { // chỉ admin dùng
+        handleAdminCommand(input);
+        document.getElementById('answerInput').value = '';
+        return;
+    }
+
+    // Đoán bài hát bình thường
+    const normalizedInput = input.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const normalizedCorrect = currentSong.title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    if (normalizedInput && (normalizedInput.includes(normalizedCorrect) || normalizedCorrect.includes(normalizedInput))) {
         score += 10;
         showNotification("✅ Đúng rồi! +10 điểm");
         new Audio('https://www.myinstants.com/media/sounds/correct-answer-gameshow.mp3').play();
@@ -339,6 +431,42 @@ function submitAnswer() {
     }
 
     loadNewSong();
+}
+
+function handleAdminCommand(cmd) {
+    const parts = cmd.slice(1).split(" ");
+    const command = parts[0].toLowerCase();
+    const arg = parts.slice(1).join(" ");
+
+    if (command === "addpoint") {
+        const points = parseInt(arg);
+        if (!isNaN(points)) {
+            score += points;
+            document.getElementById('score').textContent = score;
+            showNotification(`✅ Admin cộng +${points} điểm!`);
+        } else {
+            showNotification("❌ Sai cú pháp! /addpoint [số điểm]");
+        }
+    } else if (command === "ban") {
+        if (arg) {
+            showNotification(`🔨 Đã BAN người dùng ${arg}!`);
+            // Code ban thật (xóa localStorage key nếu biết email)
+        } else {
+            showNotification("❌ Sai cú pháp! /ban [ID]");
+        }
+    } else if (command === "kick") {
+        if (arg) {
+            showNotification(`👢 Đã KICK người dùng ${arg}! Đóng tab...`);
+            alert("Bạn bị KICK bởi Admin! Website sẽ đóng.");
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification("❌ Sai cú pháp! /kick [ID]");
+        }
+    } else if (command === "help") {
+        showNotification("Lệnh admin: /addpoint [số], /ban [ID], /kick [ID], /help");
+    } else {
+        showNotification("❌ Lệnh không tồn tại! Gõ /help để xem danh sách.");
+    }
 }
 
 function surrenderConfirm() {
@@ -427,14 +555,19 @@ function addPlayerDivs() {
 window.onload = () => {
     addPlayerDivs();
 
+    if (!navigator.onLine) {
+        alert("Bạn cần kết nối internet để chơi game!");
+    }
+
     const savedEmail = localStorage.getItem('lastLoggedInUser');
     if (savedEmail) {
         const userData = localStorage.getItem(savedEmail);
         if (userData) {
             const user = JSON.parse(userData);
-            currentUser = { email: savedEmail, name: user.name, score: user.score || 0 };
+            currentUser = { email: savedEmail, name: user.name, score: user.score || 0, id: user.id || generateUserID() };
             showScreen('mainHome');
             document.getElementById('welcomeUser').textContent = `Xin chào ${user.name}!`;
+            updateProfile();
             speak(`Chào mừng ${user.name} quay lại nhé!`);
             return;
         }
