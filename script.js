@@ -7,7 +7,7 @@ let bgMusicPlayer;
 let currentSong = null;
 let loginAttempts = 0;
 
-// Danh sách bài hát - FULL SƠN TÙNG M-TP + ALAN WALKER (có "Fire!") + NEFFEX & TheFatRat
+// Danh sách bài hát - FULL SƠN TÙNG M-TP + ALAN WALKER + NEFFEX & TheFatRat
 const songs = [
     // NEFFEX
     { title: "Fight Back", artist: "NEFFEX", id: "CYDP_8UTAus" },
@@ -112,10 +112,10 @@ function showInfo() {
     openModal(`
         <h2>ℹ️ THÔNG TIN & UPDATE</h2>
         <p><strong>Phiên bản 2.0 (08/01/2026)</p>
-        <p>- Thêm "Fire!" Alan Walker + full hit Alan Walker thiếu<br>
-        - Giữ full Sơn Tùng M-TP hot<br>
-        - Giữ ẩn hoàn toàn YouTube player<br>
-        - Đoán sai trừ 10 điểm + Chịu thua hiện đáp án + Xóa tài khoản</p>
+        <p>- Thêm full Sơn Tùng M-TP + Alan Walker ("Fire!" + hit hot)<br>
+        - Xóa tài khoản an toàn: double confirm + nhập mật khẩu<br>
+        - Đoán sai trừ 10 điểm + Chịu thua hiện đáp án<br>
+        - Ẩn hoàn toàn YouTube player</p>
         <p>Liên hệ hỗ trợ: Herogoodboymc2024@gmail.com</p>
     `);
 }
@@ -221,15 +221,45 @@ function logout() {
     }
 }
 
+// XÓA TÀI KHOẢN - DOUBLE CONFIRM + NHẬP MẬT KHẨU
 function deleteAccountConfirm() {
     if (confirm("Bạn chắc chắn muốn xóa tài khoản của mình chứ, một khi xóa là không thể khôi phục bạn đồng ý chứ?")) {
-        localStorage.removeItem(currentUser.email);
-        localStorage.removeItem('lastLoggedInUser');
-        currentUser = null;
-        showScreen('mainMenu');
-        showNotification("❌ Tài khoản đã bị xóa vĩnh viễn!");
-        speak("Tài khoản đã bị xóa hoàn toàn. Cảm ơn bạn đã chơi!");
+        openModal(`
+            <h2>🔴 XÁC NHẬN XÓA TÀI KHOẢN</h2>
+            <p style="color:#ff6b6b; font-weight:bold; margin-bottom:20px;">
+                Đây là bước cuối! Tài khoản sẽ bị xóa vĩnh viễn nếu mật khẩu đúng.
+            </p>
+            <input type="password" id="deletePassConfirm" placeholder="Nhập mật khẩu để xác nhận xóa" required style="width:100%; padding:12px; border-radius:50px; border:none; margin-bottom:20px;">
+            <button class="btn danger" onclick="finalDeleteAccount()">XÓA VĨNH VIỄN</button>
+            <button class="btn secondary" onclick="closeModal()">Hủy bỏ</button>
+        `);
+        setTimeout(() => document.getElementById('deletePassConfirm').focus(), 300);
     }
+}
+
+function finalDeleteAccount() {
+    const inputPass = document.getElementById('deletePassConfirm').value.trim();
+    if (!inputPass) {
+        alert("Vui lòng nhập mật khẩu!");
+        return;
+    }
+
+    const userData = localStorage.getItem(currentUser.email);
+    const user = JSON.parse(userData);
+
+    if (inputPass !== user.pass) {
+        alert("Sai mật khẩu! Tài khoản KHÔNG bị xóa. May quá huhu 😭");
+        closeModal();
+        return;
+    }
+
+    localStorage.removeItem(currentUser.email);
+    localStorage.removeItem('lastLoggedInUser');
+    currentUser = null;
+    closeModal();
+    showScreen('mainMenu');
+    showNotification("❌ Tài khoản đã bị xóa vĩnh viễn!");
+    speak("Tài khoản đã bị xóa hoàn toàn. Cảm ơn bạn đã chơi trò chơi của Nguyễn Chí Dự!");
 }
 
 const tag = document.createElement('script');
