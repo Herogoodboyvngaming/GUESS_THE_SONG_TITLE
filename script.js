@@ -7,7 +7,7 @@ let bgMusicPlayer;
 let currentSong = null;
 let loginAttempts = 0;
 
-// Danh sách bài hát (có My Way và Statement NEFFEX)
+// Danh sách bài hát NEFFEX & TheFatRat (ID chính xác official)
 const songs = [
     { title: "Fight Back", artist: "NEFFEX", id: "CYDP_8UTAus" },
     { title: "Best of Me", artist: "NEFFEX", id: "0Wa_CR0H8g4" },
@@ -36,11 +36,13 @@ const songs = [
     { title: "See You Again", artist: "Wiz Khalifa", id: "RgKAFK5djSk" },
 ];
 
+// Chuyển màn hình
 function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
 }
 
+// Modal đăng nhập (có quên mật khẩu sau 3 lần sai)
 function showLogin() {
     loginAttempts = 0;
     openModal(`
@@ -54,6 +56,7 @@ function showLogin() {
     `);
 }
 
+// Modal đăng ký
 function showRegister() {
     openModal(`
         <h2>Đăng ký tài khoản</h2>
@@ -64,6 +67,7 @@ function showRegister() {
     `);
 }
 
+// Modal báo lỗi
 function showReportBug() {
     openModal(`
         <h2>🛠️ Báo lỗi</h2>
@@ -83,6 +87,7 @@ function submitBug() {
     closeModal();
 }
 
+// Modal thông tin & update phiên bản 1.9
 function showInfo() {
     openModal(`
         <h2>ℹ️ THÔNG TIN & UPDATE</h2>
@@ -95,6 +100,7 @@ function showInfo() {
     `);
 }
 
+// Mở / đóng modal
 function openModal(content) {
     document.getElementById('modalBody').innerHTML = content;
     document.getElementById('modal').style.display = 'block';
@@ -104,6 +110,7 @@ function closeModal() {
     document.getElementById('modal').style.display = 'none';
 }
 
+// TTS chị Google
 function speak(text) {
     if (!isTTS) return;
     const utterance = new SpeechSynthesisUtterance(text);
@@ -112,6 +119,7 @@ function speak(text) {
     speechSynthesis.speak(utterance);
 }
 
+// Đăng ký
 function register() {
     const name = document.getElementById('regName').value.trim();
     const email = document.getElementById('regEmail').value.trim();
@@ -122,6 +130,7 @@ function register() {
     closeModal();
 }
 
+// Đăng nhập + quên mật khẩu
 function login() {
     const input = document.getElementById('loginInput').value.trim();
     const pass = document.getElementById('loginPass').value;
@@ -152,6 +161,7 @@ function login() {
     }
 }
 
+// Form quên mật khẩu
 function showForgotPassword() {
     openModal(`
         <h2>🔑 Yêu cầu hỗ trợ đổi mật khẩu</h2>
@@ -171,11 +181,13 @@ function submitForgotPassword() {
     closeModal();
 }
 
+// Hướng dẫn người mới
 function showTutorial() {
     openModal(`<h2>Hướng dẫn chơi</h2><p>Nghe đoạn nhạc ngắn, đoán tên bài hát.</p><p>Đúng +10 điểm • Skip -30 • Từ bỏ -10</p><p>Chúc vui!</p>`);
     speak("Hướng dẫn chơi: Nghe đoạn nhạc ngắn, đoán tên bài hát chính xác nhất. Đúng cộng 10 điểm. Skip trừ 30. Từ bỏ trừ 10. Chúc bạn chơi vui!");
 }
 
+// Bắt đầu chơi
 function startGame() {
     score = currentUser ? (JSON.parse(localStorage.getItem(currentUser.email)).score || 0) : 0;
     questionNum = 1;
@@ -186,16 +198,7 @@ function startGame() {
     speak("Bắt đầu chơi nào! Bấm nút phát để nghe đoạn nhạc và đoán tên bài hát nhé. Không nhìn gì hết, chỉ nghe thôi!");
 }
 
-function logout() {
-    if (confirm("Bạn có chắc muốn đăng xuất không? Điểm số vẫn được lưu lại nhé!")) {
-        localStorage.removeItem('lastLoggedInUser');
-        currentUser = null;
-        showScreen('mainMenu');
-        showNotification("✅ Đã đăng xuất thành công!");
-        speak("Tạm biệt nhé, hẹn gặp lại bạn trong lần chơi sau!");
-    }
-}
-
+// Load YouTube API
 const tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
 document.head.appendChild(tag);
@@ -209,6 +212,7 @@ function onYouTubeIframeAPIReady() {
     loadNewSong();
 }
 
+// Load bài hát mới - Ẩn hoàn toàn thumbnail
 function loadNewSong() {
     currentSong = songs[Math.floor(Math.random() * songs.length)];
     if (player) player.destroy();
@@ -240,6 +244,7 @@ function loadNewSong() {
     });
 }
 
+// Phát nhạc
 function playClip() {
     if (player && typeof player.playVideo === 'function') {
         player.playVideo();
@@ -250,7 +255,7 @@ function playClip() {
     }
 }
 
-// Gửi đáp án - SOUND EFFECT MỚI GAMESHOW SIÊU CHẤT
+// Gửi đáp án - SOUND EFFECT MỚI GAMESHOW
 function submitAnswer() {
     const input = document.getElementById('answerInput').value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const correct = currentSong.title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -278,6 +283,7 @@ function submitAnswer() {
     loadNewSong();
 }
 
+// Fix lỗi trừ điểm âm
 function skipConfirm() {
     if (score < 30) {
         showNotification("❌ Không đủ điểm để SKIP! (cần 30 điểm)");
@@ -321,6 +327,7 @@ function backToHome() {
     showScreen('mainHome');
 }
 
+// Lưu data mỗi 5 phút
 setInterval(() => {
     if (currentUser) {
         showNotification("⚠️ HỆ THỐNG ĐANG LƯU DATA CHO BẠN, CẤM RELOAD TRANG LẠI ⚠️");
@@ -333,6 +340,7 @@ setInterval(() => {
     }
 }, 300000);
 
+// Thông báo toast
 function showNotification(msg) {
     const notif = document.getElementById('notification');
     notif.textContent = msg;
@@ -340,10 +348,12 @@ function showNotification(msg) {
     setTimeout(() => notif.style.display = 'none', 4000);
 }
 
+// TTS toggle
 document.getElementById('ttsToggle').addEventListener('change', function() {
     isTTS = this.checked;
 });
 
+// Thêm player div
 function addPlayerDivs() {
     const musicPlayer = document.querySelector('.music-player');
     if (musicPlayer && !document.getElementById('songClipPlayer')) {
@@ -354,6 +364,7 @@ function addPlayerDivs() {
     }
 }
 
+// Khởi động - Auto login
 window.onload = () => {
     addPlayerDivs();
 
