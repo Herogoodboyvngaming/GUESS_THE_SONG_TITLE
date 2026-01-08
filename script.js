@@ -1,365 +1,370 @@
-let currentUser = null;
-let score = 0;
-let questionNum = 1;
-let isTTS = true;
-let player;
-let bgMusicPlayer;
-let currentSong = null;
-
-// Danh sách bài hát
+// DANH SÁCH BÀI HÁT - VIDEO ID THẬT + THUMBNAIL
 const songs = [
-    { title: "Fight Back", artist: "NEFFEX", id: "CYDP_8UTAus" },
-    { title: "Best of Me", artist: "NEFFEX", id: "0Wa_CR0H8g4" },
-    { title: "Rumors", artist: "NEFFEX", id: "LT_XSMrqS8M" },
-    { title: "Cold", artist: "NEFFEX", id: "W0eW7bnJ6v8" },
-    { title: "Grateful", artist: "NEFFEX", id: "83RUhxsfLWs" },
-    { title: "Never Give Up", artist: "NEFFEX", id: "T7kiCsfqQfM" },
-    { title: "Careless", artist: "NEFFEX", id: "zqKX0p0iW0o" },
-    { title: "Failure", artist: "NEFFEX", id: "qG8M6nWqC4s" },
-    { title: "Desperate", artist: "NEFFEX", id: "kDYn3gLr6XU" },
+    { title: "Fight Back", artist: "NEFFEX", videoId: "CYDP_8UTAus", thumbnail: "https://img.youtube.com/vi/CYDP_8UTAus/hqdefault.jpg" },
+    { title: "Best of Me", artist: "NEFFEX", videoId: "0Wa_CR0H8g4", thumbnail: "https://img.youtube.com/vi/0Wa_CR0H8g4/hqdefault.jpg" },
+    { title: "Rumors", artist: "NEFFEX", videoId: "LT_XSMrqS8M", thumbnail: "https://img.youtube.com/vi/LT_XSMrqS8M/hqdefault.jpg" },
+    { title: "Cold", artist: "NEFFEX", videoId: "W0eW7bnJ6v8", thumbnail: "https://img.youtube.com/vi/W0eW7bnJ6v8/hqdefault.jpg" },
+    { title: "Grateful", artist: "NEFFEX", videoId: "83RUhxsfLWs", thumbnail: "https://img.youtube.com/vi/83RUhxsfLWs/hqdefault.jpg" },
+    { title: "Never Give Up", artist: "NEFFEX", videoId: "T7kiCsfqQfM", thumbnail: "https://img.youtube.com/vi/T7kiCsfqQfM/hqdefault.jpg" },
+    { title: "Careless", artist: "NEFFEX", videoId: "zqKX0p0iW0o", thumbnail: "https://img.youtube.com/vi/zqKX0p0iW0o/hqdefault.jpg" },
+    { title: "Failure", artist: "NEFFEX", videoId: "qG8M6nWqC4s", thumbnail: "https://img.youtube.com/vi/qG8M6nWqC4s/hqdefault.jpg" },
+    { title: "Desperate", artist: "NEFFEX", videoId: "kDYn3gLr6XU", thumbnail: "https://img.youtube.com/vi/kDYn3gLr6XU/hqdefault.jpg" },
 
-    { title: "Unity", artist: "TheFatRat", id: "n4tK7LYFxI0" },
-    { title: "Monody", artist: "TheFatRat", id: "B7xai5u_tnk" },
-    { title: "Fly Away", artist: "TheFatRat", id: "cMg8KaMdDYo" },
-    { title: "The Calling", artist: "TheFatRat", id: "KR-eV7fHNbM" },
-    { title: "We'll Meet Again", artist: "TheFatRat", id: "s3yB1oBOI4s" },
-    { title: "Close To The Sun", artist: "TheFatRat", id: "O2oE7iPqZqM" },
-    { title: "Rise Up", artist: "TheFatRat", id: "j-2DGYNXRx0" },
-    { title: "Xenogenesis", artist: "TheFatRat", id: "5eW6EgnevGc" },
-    { title: "Time Lapse", artist: "TheFatRat", id: "3Fx5QNEz1yo" },
-    { title: "Warbringer", artist: "TheFatRat", id: "jiT2Mak9AzI" },
-    { title: "Hiding in the Blue", artist: "TheFatRat", id: "lW0DIsC7n1U" },
+    { title: "Unity", artist: "TheFatRat", videoId: "n4tK7LYFxI0", thumbnail: "https://img.youtube.com/vi/n4tK7LYFxI0/hqdefault.jpg" },
+    { title: "Monody", artist: "TheFatRat", videoId: "B7xai5u_tnk", thumbnail: "https://img.youtube.com/vi/B7xai5u_tnk/hqdefault.jpg" },
+    { title: "Fly Away", artist: "TheFatRat", videoId: "cMg8KaMdDYo", thumbnail: "https://img.youtube.com/vi/cMg8KaMdDYo/hqdefault.jpg" },
+    { title: "The Calling", artist: "TheFatRat", videoId: "KR-eV7fHNbM", thumbnail: "https://img.youtube.com/vi/KR-eV7fHNbM/hqdefault.jpg" },
+    { title: "We'll Meet Again", artist: "TheFatRat", videoId: "s3yB1oBOI4s", thumbnail: "https://img.youtube.com/vi/s3yB1oBOI4s/hqdefault.jpg" },
+    { title: "Close To The Sun", artist: "TheFatRat", videoId: "O2oE7iPqZqM", thumbnail: "https://img.youtube.com/vi/O2oE7iPqZqM/hqdefault.jpg" },
+    { title: "Rise Up", artist: "TheFatRat", videoId: "j-2DGYNXRx0", thumbnail: "https://img.youtube.com/vi/j-2DGYNXRx0/hqdefault.jpg" },
+    { title: "Xenogenesis", artist: "TheFatRat", videoId: "5eW6EgnevGc", thumbnail: "https://img.youtube.com/vi/5eW6EgnevGc/hqdefault.jpg" },
+    { title: "Time Lapse", artist: "TheFatRat", videoId: "3Fx5QNEz1yo", thumbnail: "https://img.youtube.com/vi/3Fx5QNEz1yo/hqdefault.jpg" },
+    { title: "Warbringer", artist: "TheFatRat", videoId: "jiT2Mak9AzI", thumbnail: "https://img.youtube.com/vi/jiT2Mak9AzI/hqdefault.jpg" },
+    { title: "Hiding in the Blue", artist: "TheFatRat", videoId: "lW0DIsC7n1U", thumbnail: "https://img.youtube.com/vi/lW0DIsC7n1U/hqdefault.jpg" },
 
-    { title: "See You Again", artist: "Wiz Khalifa", id: "RgKAFK5djSk" },
+    { title: "See You Again", artist: "Wiz Khalifa", videoId: "RgKAFK5djSk", thumbnail: "https://img.youtube.com/vi/RgKAFK5djSk/hqdefault.jpg" }
 ];
 
+let currentUser = null;
+let currentScore = 0;
+let currentQuestion = 0;
+let ttsEnabled = true;
+let player = null;
+let currentSong = null;
+
+const screens = {
+    auth: document.getElementById('auth-screen'),
+    menu: document.getElementById('menu-screen'),
+    game: document.getElementById('game-screen'),
+    result: document.getElementById('result-screen')
+};
+
 function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+    Object.values(screens).forEach(s => s.classList.remove('active'));
+    document.getElementById(id + '-screen').classList.add('active');
+    if (id !== 'game' && player) {
+        player.destroy();
+        player = null;
+    }
 }
 
-function showLogin() {
-    openModal(`
-        <h2>Đăng nhập</h2>
-        <input type="text" id="loginInput" placeholder="Tên hoặc Gmail" required><br><br>
-        <input type="password" id="loginPass" placeholder="Mật khẩu" required><br><br>
-        <button class="btn primary" onclick="login()">ĐĂNG NHẬP</button>
-    `);
-}
-
-function showRegister() {
-    openModal(`
-        <h2>Đăng ký tài khoản</h2>
-        <input type="text" id="regName" placeholder="Tên của bạn" required><br><br>
-        <input type="email" id="regEmail" placeholder="Gmail của bạn" required><br><br>
-        <input type="password" id="regPass" placeholder="Mật khẩu" required><br><br>
-        <button class="btn primary" onclick="register()">ĐĂNG KÝ</button>
-    `);
-}
-
-function showReportBug() {
-    openModal(`
-        <h2>🛠️ Báo lỗi</h2>
-        <input type="text" id="bugName" placeholder="Tên của bạn" required><br><br>
-        <input type="email" id="bugEmail" placeholder="Gmail của bạn" required><br><br>
-        <textarea id="bugMsg" placeholder="Tin nhắn yêu cầu sửa lỗi" required></textarea><br><br>
-        <button class="btn primary" onclick="submitBug()">GỬI BÁO LỖI</button>
-    `);
-}
-
-function submitBug() {
-    const name = document.getElementById('bugName').value.trim();
-    const email = document.getElementById('bugEmail').value.trim();
-    const msg = document.getElementById('bugMsg').value.trim();
-    if (!name || !email || !msg) return alert("Vui lòng điền đầy đủ!");
-    alert("Cảm ơn bạn đã báo lỗi!");
-    closeModal();
-}
-
-function showInfo() {
-    openModal(`
-        <h2>ℹ️ THÔNG TIN & UPDATE</h2>
-        <p><strong>Phiên bản:</strong> 1.8 (07/01/2026)</p>
-        <p>- Ẩn hoàn toàn thumbnail & tiêu đề YouTube<br>
-        - Thêm nút ĐĂNG XUẤT<br>
-        - Tự động đăng nhập + Chị Google hướng dẫn chi tiết</p>
-        <p>Liên hệ hỗ trợ: Herogoodboymc2024@gmail.com</p>
-    `);
-}
-
-function openModal(content) {
-    document.getElementById('modalBody').innerHTML = content;
-    document.getElementById('modal').style.display = 'block';
-}
-
-function closeModal() {
-    document.getElementById('modal').style.display = 'none';
+function confirmAction(message, callback) {
+    if (confirm(message)) callback();
 }
 
 function speak(text) {
-    if (!isTTS) return;
+    if (!ttsEnabled || !('speechSynthesis' in window)) return;
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'vi-VN';
     utterance.rate = 0.9;
-    speechSynthesis.speak(utterance);
+    window.speechSynthesis.speak(utterance);
 }
 
-function register() {
-    const name = document.getElementById('regName').value.trim();
-    const email = document.getElementById('regEmail').value.trim();
-    const pass = document.getElementById('regPass').value;
-    if (!name || !email || !pass) return alert("Điền đầy đủ!");
-    localStorage.setItem(email, JSON.stringify({ name, pass, score: 0, firstTime: true }));
-    alert("Đăng ký thành công!");
-    closeModal();
-}
-
-function login() {
-    const input = document.getElementById('loginInput').value.trim();
-    const pass = document.getElementById('loginPass').value;
-    const userData = localStorage.getItem(input);
-    if (!userData) return alert("Tài khoản không tồn tại!");
-    const user = JSON.parse(userData);
-    if (user.pass !== pass) return alert("Sai mật khẩu!");
-    currentUser = { email: input, name: user.name, score: user.score || 0 };
-    localStorage.setItem('lastLoggedInUser', input);
-    showScreen('mainHome');
-    document.getElementById('welcomeUser').textContent = `Xin chào ${user.name}!`;
-    speak(`Chào mừng ${user.name} quay lại trò chơi nghe nhạc đoán tên bài hát nhé!`);
-    closeModal();
-    if (user.firstTime) {
-        setTimeout(showTutorial, 2000);
-        user.firstTime = false;
-        localStorage.setItem(input, JSON.stringify(user));
+// KHÔNG CHO ĐIỂM ÂM
+function subtractScore(amount) {
+    if (currentScore >= amount) {
+        currentScore -= amount;
+        updateScore();
+        return true;
+    } else {
+        alert("Không đủ điểm để thực hiện hành động này!");
+        return false;
     }
 }
 
-function showTutorial() {
-    openModal(`<h2>Hướng dẫn chơi</h2><p>Nghe đoạn nhạc ngắn, đoán tên bài hát chính xác nhất.</p><p>Đúng +10 điểm • Skip -30 • Từ bỏ -10</p><p>Chúc vui!</p>`);
-    speak("Hướng dẫn chơi: Nghe đoạn nhạc ngắn, đoán tên bài hát chính xác nhất. Đúng cộng 10 điểm. Skip trừ 30. Từ bỏ trừ 10. Chúc bạn chơi vui!");
+// AUTH + TỰ ĐĂNG NHẬP RELOAD
+const authMessage = document.getElementById('auth-message');
+const savedUsername = localStorage.getItem('lastLoggedUser');
+
+if (savedUsername) {
+    const userData = localStorage.getItem(savedUsername);
+    if (userData) {
+        currentUser = { name: savedUsername, ...JSON.parse(userData) };
+        initMenu();
+        showScreen('menu');
+    }
 }
+
+document.getElementById('login-btn').onclick = () => {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    if (!username || !password) {
+        authMessage.textContent = "Vui lòng nhập đầy đủ tên tài khoản và mật khẩu!";
+        authMessage.style.color = "#ffeb3b";
+        return;
+    }
+    const userData = localStorage.getItem(username);
+    if (!userData) {
+        authMessage.textContent = "Bạn chưa đăng ký! Vui lòng đăng ký tài khoản mới, rồi trở lại đăng nhập nhé 😊";
+        authMessage.style.color = "#ffa502";
+    } else {
+        const data = JSON.parse(userData);
+        if (data.pass === password) {
+            currentUser = { name: username, ...data };
+            localStorage.setItem('lastLoggedUser', username);
+            authMessage.textContent = "Đăng nhập thành công ✅";
+            authMessage.style.color = "#2ed573";
+            setTimeout(() => { initMenu(); showScreen('menu'); }, 1000);
+        } else {
+            authMessage.textContent = "Mật khẩu sai rồi! Thử lại nhé ⚠️";
+            authMessage.style.color = "#ff4757";
+        }
+    }
+};
+
+document.getElementById('register-btn').onclick = () => {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    if (!username || !password) {
+        authMessage.textContent = "Vui lòng nhập đầy đủ!";
+        authMessage.style.color = "#ffeb3b";
+        return;
+    }
+    if (localStorage.getItem(username)) {
+        authMessage.textContent = "Tài khoản đã tồn tại!";
+        authMessage.style.color = "#ff4757";
+        return;
+    }
+    const newUser = { pass: password, highScore: 0 };
+    localStorage.setItem(username, JSON.stringify(newUser));
+    authMessage.textContent = "Đăng ký thành công! Giờ bạn có thể đăng nhập rồi ✅";
+    authMessage.style.color = "#2ed573";
+};
+
+document.getElementById('logout-btn').onclick = () => {
+    saveUserData();
+    localStorage.removeItem('lastLoggedUser');
+    currentUser = null;
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+    authMessage.textContent = '';
+    showScreen('auth');
+};
+
+// MENU
+function initMenu() {
+    document.getElementById('player-name').textContent = currentUser.name;
+    document.getElementById('high-score').textContent = currentUser.highScore || 0;
+    updateTime();
+    setInterval(updateTime, 1000);
+    document.getElementById('toggle-tts').textContent = ttsEnabled ? 'Tắt Giọng Đọc' : 'Bật Giọng Đọc';
+}
+
+document.getElementById('toggle-tts').onclick = () => {
+    ttsEnabled = !ttsEnabled;
+    document.getElementById('toggle-tts').textContent = ttsEnabled ? 'Tắt Giọng Đọc' : 'Bật Giọng Đọc';
+};
+
+document.getElementById('start-game').onclick = () => {
+    confirmAction('Bạn có chắc muốn bắt đầu chơi không?', startGame);
+};
+
+function updateTime() {
+    const now = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+    document.getElementById('real-time').textContent = now;
+};
+
+// GAME
+function onYouTubeIframeAPIReady() {}
 
 function startGame() {
-    score = currentUser ? (JSON.parse(localStorage.getItem(currentUser.email)).score || 0) : 0;
-    questionNum = 1;
-    document.getElementById('score').textContent = score;
-    document.getElementById('questionNum').textContent = questionNum;
-    showScreen('mainGame');
-    loadNewSong();
-    speak("Bắt đầu chơi nào! Bấm nút phát để nghe đoạn nhạc và đoán tên bài hát nhé. Không nhìn gì hết, chỉ nghe thôi! Chúc may mắn!");
-}
-
-function logout() {
-    if (confirm("Bạn có chắc muốn đăng xuất không? Điểm số vẫn được lưu lại nhé!")) {
-        localStorage.removeItem('lastLoggedInUser');
-        currentUser = null;
-        showScreen('mainMenu');
-        showNotification("✅ Đã đăng xuất thành công!");
-        speak("Tạm biệt nhé, hẹn gặp lại bạn trong lần chơi sau!");
+    currentScore = 0;
+    currentQuestion = 0;
+    updateScore();
+    showScreen('game');
+    loadNextQuestion();
+    if (ttsEnabled) {
+        speak("Chào mừng bạn đến với game đoán tên bài hát! Hãy lắng nghe đoạn nhạc sau khi bấm nút phát nhé!");
     }
 }
 
-// Load YouTube API
-const tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
-document.head.appendChild(tag);
+function loadNextQuestion() {
+    currentQuestion++;
+    if (currentQuestion > 10) {
+        endGame();
+        return;
+    }
+    document.getElementById('question-num').textContent = currentQuestion;
+    document.getElementById('question-text').textContent = "ÂM THANH BẠN VỪA NGHE ĐƯỢC LÀ GÌ?";
 
-function onYouTubeIframeAPIReady() {
-    bgMusicPlayer = new YT.Player('bgMusicPlayer', {
-        height: '0', width: '0', videoId: 'jfKfPfyJRdk',
-        playerVars: { autoplay: 1, loop: 1, playlist: 'jfKfPfyJRdk', controls: 0 },
-        events: { onReady: (e) => e.target.setVolume(20) }
+    const available = songs;
+    currentSong = available[Math.floor(Math.random() * available.length)];
+    const wrong = available.filter(s => s !== currentSong);
+    for (let i = wrong.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [wrong[i], wrong[j]] = [wrong[j], wrong[i]];
+    }
+    const options = [currentSong, wrong[0], wrong[1], wrong[2]];
+    for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+    }
+
+    const optionsDiv = document.getElementById('options');
+    optionsDiv.innerHTML = '';
+    options.forEach(song => {
+        const btn = document.createElement('button');
+        const img = document.createElement('img');
+        img.src = song.thumbnail;
+        img.alt = song.title;
+        img.className = 'song-thumbnail';
+        img.loading = 'lazy';
+        btn.appendChild(img);
+        const pronounceBtn = document.createElement('button');
+        pronounceBtn.textContent = '🔊';
+        pronounceBtn.className = 'pronounce-btn';
+        pronounceBtn.onclick = (e) => {
+            e.stopPropagation();
+            speak(`${song.title} của ${song.artist}`);
+        };
+        btn.appendChild(pronounceBtn);
+        btn.innerHTML += `<span>${song.title} - ${song.artist}</span>`;
+        btn.onclick = () => selectAnswer(song === currentSong, btn);
+        optionsDiv.appendChild(btn);
     });
-    loadNewSong();
-}
 
-function loadNewSong() {
-    currentSong = songs[Math.floor(Math.random() * songs.length)];
-    if (player) player.destroy();
+    if (player) {
+        player.destroy();
+    }
 
-    player = new YT.Player('songClipPlayer', {
-        height: '80',
-        width: '100%',
-        videoId: currentSong.id,
+    player = new YT.Player('youtube-player', {
+        height: '0',
+        width: '0',
+        videoId: currentSong.videoId,
         playerVars: {
-            start: Math.floor(Math.random() * 40) + 20,
-            end: Math.floor(Math.random() * 20) + 60,
+            start: 30,
             autoplay: 0,
             controls: 0,
             disablekb: 1,
             fs: 0,
             iv_load_policy: 3,
             modestbranding: 1,
-            rel: 0,
-            showinfo: 0,
-            playsinline: 1
+            rel: 0
         },
         events: {
-            onReady: () => {
-                const iframe = document.querySelector('#songClipPlayer iframe');
-                if (iframe) iframe.style.background = '#000';
-            },
-            onError: () => loadNewSong()
+            'onReady': () => {
+                document.getElementById('play-btn').disabled = false;
+            }
         }
     });
 }
 
-function playClip() {
-    if (player && typeof player.playVideo === 'function') {
-        player.playVideo();
-        speak("Đoạn nhạc đang phát! Lắng nghe kỹ và đoán tên bài hát nào! Chúc may mắn nhé!");
-    } else {
-        showNotification("⏳ Đang tải nhạc, bấm lại sau vài giây nhé!");
-        setTimeout(playClip, 1500);
-    }
-}
-
-function submitAnswer() {
-    const input = document.getElementById('answerInput').value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    const correct = currentSong.title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-    if (input && (input.includes(correct) || correct.includes(input))) {
-        score += 10;
-        showNotification("✅ Đúng rồi! +10 điểm");
-        new Audio('https://www.soundjay.com/buttons/sounds/button-09.mp3').play();
-    } else {
-        showNotification("❌ Sai rồi! Hãy thử lại nhé");
-        new Audio('https://www.soundjay.com/buttons/sounds/button-10.mp3').play();
-    }
-
-    document.getElementById('score').textContent = score;
-    questionNum++;
-    document.getElementById('questionNum').textContent = questionNum;
-    document.getElementById('answerInput').value = '';
-
-    if (currentUser) {
-        const data = JSON.parse(localStorage.getItem(currentUser.email));
-        data.score = score;
-        localStorage.setItem(currentUser.email, JSON.stringify(data));
-    }
-
-    loadNewSong();
-}
-
-function skipConfirm() {
-    if (confirm("Bạn chắc chắn muốn SKIP? (-30 điểm)")) {
-        score -= 30;
-        document.getElementById('score').textContent = score;
-        loadNewSong();
-    }
-}
-
-function resetConfirm() {
-    if (confirm("⚠️ NẾU BẤM OK BẠN SẼ BỊ XÓA SẠCH ĐIỂM ĐANG CÓ ⚠️ Bạn đồng ý chứ?")) {
-        score = 0;
-        document.getElementById('score').textContent = score;
-    }
-}
-
-function restartConfirm() {
-    if (confirm("Bạn muốn bắt đầu lại từ đầu?")) {
-        startGame();
-    }
-}
-
-function giveUpConfirm() {
-    if (confirm("Từ bỏ câu này? (-10 điểm)")) {
-        score -= 10;
-        document.getElementById('score').textContent = score;
-        loadNewSong();
-    }
-}
-
-function stopConfirm() {
-    if (confirm("🛑 Dừng hẳn trò chơi và trở về trang chủ?")) {
-        backToHome();
-    }
-}
-
-function backToHome() {
-    showScreen('mainHome');
-}
-
-setInterval(() => {
-    if (currentUser) {
-        showNotification("⚠️ HỆ THỐNG ĐANG LƯU DATA CHO BẠN, CẤM RELOAD TRANG LẠI ⚠️");
-        setTimeout(() => {
-            const data = JSON.parse(localStorage.getItem(currentUser.email));
-            data.score = score;
-            localStorage.setItem(currentUser.email, JSON.stringify(data));
-            showNotification("✅ ĐÃ LƯU DATA HOÀN TẤT ✅");
-        }, 30000);
-    }
-}, 300000);
-
-function showNotification(msg) {
-    const notif = document.getElementById('notification');
-    notif.textContent = msg;
-    notif.style.display = 'block';
-    setTimeout(() => notif.style.display = 'none', 4000);
-}
-
-document.getElementById('ttsToggle').addEventListener('change', function() {
-    isTTS = this.checked;
-});
-
-function addPlayerDivs() {
-    const musicPlayer = document.querySelector('.music-player');
-    if (musicPlayer && !document.getElementById('songClipPlayer')) {
-        musicPlayer.insertAdjacentHTML('beforeend', `
-            <div id="songClipPlayerContainer" style="position:relative; margin:20px 0; border-radius:15px; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.5); width:100%; height:80px; background:#000;">
-                <div id="songClipPlayer"></div>
-                <!-- Lớp overlay đen che hoàn toàn thumbnail & tiêu đề -->
-                <div style="position:absolute; top:0; left:0; width:100%; height:100%; background:#000; z-index:10;"></div>
-            </div>
-            <div id="bgMusicPlayer" style="display:none;"></div>
-        `);
-    }
-}
-
-function loadNewSong() {
-    currentSong = songs[Math.floor(Math.random() * songs.length)];
-    if (player) player.destroy();
-
-    player = new YT.Player('songClipPlayer', {
-        height: '80',
-        width: '100%',
-        videoId: currentSong.id,
-        playerVars: {
-            start: Math.floor(Math.random() * 40) + 20,
-            end: Math.floor(Math.random() * 20) + 60,
-            autoplay: 0,
-            controls: 0,
-            disablekb: 1,
-            fs: 0,
-            iv_load_policy: 3,
-            modestbranding: 1,
-            rel: 0,
-            showinfo: 0,
-            playsinline: 1
-        },
-        events: {
-            onReady: () => console.log("Load bài thành công (ẩn hoàn toàn): " + currentSong.title),
-            onError: () => loadNewSong()
-        }
-    });
-}
-
-window.onload = () => {
-    addPlayerDivs();
-
-    const savedEmail = localStorage.getItem('lastLoggedInUser');
-    if (savedEmail) {
-        const userData = localStorage.getItem(savedEmail);
-        if (userData) {
-            const user = JSON.parse(userData);
-            currentUser = { email: savedEmail, name: user.name, score: user.score || 0 };
-            showScreen('mainHome');
-            document.getElementById('welcomeUser').textContent = `Xin chào ${user.name}!`;
-            speak(`Chào mừng ${user.name} quay lại nhé!`);
-            return;
-        }
-    }
-
-    showScreen('mainMenu');
+document.getElementById('play-btn').onclick = () => {
+    speak("Hãy lắng nghe đoạn nhạc sau");
+    document.getElementById('play-btn').disabled = true;
+    player.seekTo(30);
+    player.playVideo();
+    setTimeout(() => {
+        player.pauseVideo();
+        speak("Âm thanh bạn vừa nghe được là gì?");
+        document.getElementById('play-btn').disabled = false;
+    }, 10000);
 };
+
+function selectAnswer(isCorrect, btn) {
+    const message = isCorrect 
+        ? "Bạn chắc chứ? Chọn đúng +50 điểm!" 
+        : "Bạn chắc chứ? Chọn sai sẽ bị trừ 10 điểm (nếu còn điểm)!";
+    confirmAction(message, () => {
+        if (isCorrect) {
+            currentScore += 50;
+            btn.style.background = 'linear-gradient(45deg, #2ed573, #51e898)';
+            speak("Chính xác! Chúc mừng!");
+        } else {
+            if (subtractScore(10)) {
+                btn.style.background = 'linear-gradient(45deg, #ff4757, #ff7675)';
+                speak("Sai rồi! Tiếp tục cố lên!");
+            }
+        }
+        updateScore();
+        setTimeout(loadNextQuestion, 2000);
+    });
+};
+
+function updateScore() {
+    document.getElementById('score').textContent = currentScore;
+}
+
+document.getElementById('skip-btn').onclick = () => {
+    if (subtractScore(30)) {
+        loadNextQuestion();
+    }
+};
+
+document.getElementById('giveup-btn').onclick = () => {
+    if (subtractScore(10)) {
+        showScreen('menu');
+    }
+};
+
+document.getElementById('home-btn').onclick = () => {
+    confirmAction("Trở về menu? Tiến độ sẽ mất.", () => showScreen('menu'));
+};
+
+document.getElementById('restart-btn').onclick = () => {
+    confirmAction("Restart game từ đầu?", startGame);
+};
+
+document.getElementById('back-to-menu-result').onclick = () => {
+    showScreen('menu');
+};
+
+function endGame() {
+    saveUserData();
+    document.getElementById('final-score').textContent = currentScore;
+    if (currentScore > (currentUser.highScore || 0)) {
+        currentUser.highScore = currentScore;
+        document.getElementById('new-record').textContent = "KỶ LỤC MỚI!";
+        saveUserData();
+    } else {
+        document.getElementById('new-record').textContent = "";
+    }
+    showScreen('result');
+}
+
+function saveUserData() {
+    if (currentUser) {
+        localStorage.setItem(currentUser.name, JSON.stringify({
+            pass: currentUser.pass,
+            highScore: currentUser.highScore || 0
+        }));
+    }
+}
+
+// REPORT & UPDATE MODAL
+const reportModal = document.getElementById('report-modal');
+const reportBtn = document.getElementById('report-btn');
+const closeModal = document.getElementById('close-modal');
+const sendReport = document.getElementById('send-report');
+const reportStatus = document.getElementById('report-status');
+
+reportBtn.onclick = () => { reportModal.style.display = 'flex'; };
+closeModal.onclick = () => { reportModal.style.display = 'none'; reportStatus.textContent = ''; };
+window.onclick = (e) => { if (e.target === reportModal) { reportModal.style.display = 'none'; reportStatus.textContent = ''; } };
+
+sendReport.onclick = () => {
+    const name = document.getElementById('report-name').value.trim();
+    const email = document.getElementById('report-email').value.trim();
+    const message = document.getElementById('report-message').value.trim();
+    if (!name || !email || !message) {
+        reportStatus.textContent = 'Vui lòng điền đầy đủ tất cả các trường!';
+        reportStatus.style.color = '#ff4757';
+        return;
+    }
+    const subject = encodeURIComponent(`Report từ ${name}`);
+    const body = encodeURIComponent(`Tên: ${name}\nEmail: \( {email}\nTin nhắn:\n \){message}`);
+    window.location.href = `mailto:Herogoodboymc2024@gmail.com?subject=\( {subject}&body= \){body}`;
+    reportStatus.textContent = 'Đã mở mail để gửi! Cảm ơn bạn rất nhiều ❤️';
+    reportStatus.style.color = '#2ed573';
+    document.getElementById('report-name').value = '';
+    document.getElementById('report-email').value = '';
+    document.getElementById('report-message').value = '';
+};
+
+const updateModal = document.getElementById('update-modal');
+const updateBtn = document.getElementById('update-btn');
+const closeUpdateModal = document.getElementById('close-update-modal');
+
+updateBtn.onclick = () => { updateModal.style.display = 'flex'; };
+closeUpdateModal.onclick = () => { updateModal.style.display = 'none'; };
+window.onclick = (e) => { if (e.target === updateModal) { updateModal.style.display = 'none'; } };
