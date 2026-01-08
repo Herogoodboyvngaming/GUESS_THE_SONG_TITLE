@@ -3,93 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WEBSITE NGHE NHẠC ĐOÁN BÀI HÁT</title>
+    <title>WEBSITE NGHE NHẠC ĐOÁN TÊN BÀI HÁT</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.youtube.com/iframe_api"></script>
 </head>
 <body>
-    <!-- Trang đăng nhập / đăng ký -->
-    <div id="mainMenu" class="screen active">
+    <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ -->
+    <div id="auth-screen" class="screen active">
         <div class="container">
-            <h1 class="title">WEBSITE NGHE NHẠC ĐOÁN BÀI HÁT</h1>
-            <p class="subtitle">
-                ĐƯỢC TẠO BỞI: Nguyễn Chí Dự 🇻🇳♥️🇻🇳<br>
-                <small>Phiên bản 1.8 • Ẩn hoàn toàn thumbnail & tiêu đề YouTube<br>
-                Chỉ nghe nhạc đoán tên – siêu khó, siêu fair!<br>
-                Có lỗi kéo xuống chân trang bấm nút báo lỗi nhé!</small>
-            </p>
-
-            <button class="btn primary large" onclick="showLogin()">ĐĂNG NHẬP</button>
-            <button class="btn secondary large" onclick="showRegister()">ĐĂNG KÝ TÀI KHOẢN</button>
-
-            <div class="footer">
-                <button class="btn small outline" onclick="showReportBug()">🛠️ Báo lỗi</button>
+            <h1>WEBSITE NGHE NHẠC<br>ĐOÁN TÊN BÀI HÁT</h1>
+            <p class="subtitle">Website được tạo bởi: NGUYỄN CHÍ DỰ<br>Có lỗi kéo xuống chân trang bấm nút REPORT BUGS nhé 🇻🇳♥️</p>
+            <div class="auth-form">
+                <input type="text" id="username" placeholder="Tên tài khoản" autocomplete="off">
+                <input type="password" id="password" placeholder="Mật khẩu">
+                <button id="login-btn">Đăng nhập</button>
+                <button id="register-btn">Đăng ký</button>
+                <p id="auth-message"></p>
             </div>
         </div>
     </div>
 
-    <!-- Trang chính sau đăng nhập -->
-    <div id="mainHome" class="screen">
+    <!-- MÀN HÌNH MENU -->
+    <div id="menu-screen" class="screen">
         <div class="container">
-            <h1>Xin chào!</h1>
-            <p id="welcomeUser" class="welcome-text">Đang tải...</p>
-
-            <button class="btn primary extra-large" onclick="startGame()">🎵 BẮT ĐẦU CHƠI</button>
-
-            <label class="tts-toggle">
-                <input type="checkbox" id="ttsToggle" checked>
-                <span>🔊 Bật/Tắt chị Google (TTS)</span>
-            </label>
-
-            <button class="btn info large" onclick="showInfo()">ℹ️ THÔNG TIN & UPDATE</button>
-
-            <button class="btn danger large" onclick="logout()">🚪 ĐĂNG XUẤT</button>
-
-            <div class="footer">
-                <button class="btn small outline" onclick="showReportBug()">🛠️ Báo lỗi</button>
-            </div>
+            <h1>Xin chào, <span id="player-name"></span>!</h1>
+            <p>Điểm cao nhất: <span id="high-score">0</span></p>
+            <button id="toggle-tts" class="big-btn">Tắt Giọng Đọc</button>
+            <button id="start-game" class="big-btn">BẮT ĐẦU CHƠI</button>
+            <button id="logout-btn">Đăng xuất</button>
+            <div class="time" id="real-time"></div>
         </div>
     </div>
 
-    <!-- Trang chơi game -->
-    <div id="mainGame" class="screen">
+    <!-- MÀN HÌNH GAME -->
+    <div id="game-screen" class="screen">
         <div class="game-header">
-            <div>Điểm số: <span id="score">0</span> 🏆</div>
-            <div>Câu hỏi: <span id="questionNum">1</span>/∞</div>
+            <div>Điểm: <span id="score">0</span></div>
+            <div>Câu hỏi: <span id="question-num">1</span>/10</div>
         </div>
-
-        <div class="music-player">
-            <button id="playBtn" class="play-button" onclick="playClip()">▶️ PHÁT ĐOẠN NHẠC</button>
-            <p class="hint">Chỉ nghe âm thanh thôi nhé – chúc may mắn 😉 <br>
-            Đoán tên bài hát của NEFFEX & TheFatRat nào!</p>
-        </div>
-
-        <div class="answer-section">
-            <input type="text" id="answerInput" placeholder="Nhập tên bài hát ở đây..." autocomplete="off">
-            <button class="btn primary" onclick="submitAnswer()">GỬI ĐÁP ÁN</button>
-        </div>
-
-        <div class="game-controls">
-            <button class="btn skip" onclick="skipConfirm()">⏩ SKIP (-30 điểm)</button>
-            <button class="btn warning" onclick="resetConfirm()">⚠️ RESET ĐIỂM</button>
-            <button class="btn restart" onclick="restartConfirm()">🔃 RESTART</button>
-            <button class="btn giveup" onclick="giveUpConfirm()">TỪ BỎ (-10 điểm)</button>
-            <button class="btn danger" onclick="stopConfirm()">🛑 STOP GAME</button>
-            <button class="btn home" onclick="backToHome()">🏠 TRỞ VỀ TRANG CHỦ</button>
+        <div class="container game-container">
+            <h2 id="question-text">ÂM THANH BẠN VỪA NGHE ĐƯỢC LÀ GÌ?</h2>
+            <button id="play-btn" class="play-btn">▶ PHÁT NHẠC (10 giây)</button>
+            <div id="youtube-player" style="display:none;"></div>
+            <div id="options" class="options"></div>
+            <div class="game-controls">
+                <button id="home-btn">Trở về menu</button>
+                <button id="giveup-btn">Từ bỏ (-10)</button>
+                <button id="skip-btn">Skip (-30)</button>
+                <button id="restart-btn">Restart</button>
+            </div>
         </div>
     </div>
 
-    <!-- Modal chung -->
-    <div id="modal" class="modal">
+    <!-- MÀN HÌNH KẾT QUẢ -->
+    <div id="result-screen" class="screen">
+        <div class="container">
+            <h1>Hoàn thành!</h1>
+            <p>Điểm cuối cùng: <span id="final-score">0</span></p>
+            <p id="new-record"></p>
+            <button id="back-to-menu-result">Về menu</button>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>MADE IN VN 🇻🇳</p>
+        <p>MADE BY: NGUYỄN CHÍ DỰ ♥️ 🇻🇳</p>
+        <p>CẢM ƠN BẠN ĐÃ CHƠI ♥️♥️♥️🇻🇳🇻🇳🇻🇳</p>
+        <button id="report-btn" class="report-btn">REPORT BUGS</button>
+        <button id="update-btn" class="report-btn">THÔNG TIN & UPDATE</button>
+    </footer>
+
+    <!-- MODAL REPORT BUG -->
+    <div id="report-modal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal()">×</span>
-            <div id="modalBody"></div>
+            <span id="close-modal" class="close">&times;</span>
+            <h2>Report Bug hoặc Góp Ý</h2>
+            <input type="text" id="report-name" placeholder="Tên của bạn (bắt buộc)">
+            <input type="email" id="report-email" placeholder="Gmail của bạn (bắt buộc)">
+            <textarea id="report-message" placeholder="Tin nhắn yêu cầu của bạn (bắt buộc)" rows="6"></textarea>
+            <button id="send-report">Gửi Báo Cáo</button>
+            <p id="report-status"></p>
         </div>
     </div>
 
-    <!-- Thông báo toast -->
-    <div id="notification" class="notification"></div>
+    <!-- MODAL THÔNG TIN & UPDATE -->
+    <div id="update-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-update-modal" class="close">&times;</span>
+            <h2>THÔNG TIN & UPDATE</h2>
+            <div id="update-content">
+                <p><strong>Ngày update mới nhất: 08/01/2026</strong></p>
+                <ul>
+                    <li>Fix không cho điểm âm khi skip/giveup/sai</li>
+                    <li>Lưu highScore + tự động đăng nhập khi reload</li>
+                    <li>TTS native đọc mượt, tự động chào khi vào game</li>
+                    <li>Tối ưu RAM & mobile (destroy player cũ)</li>
+                    <li>Che hoàn toàn thumbnail & tiêu đề YouTube</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
-    <!-- Load script.js -->
     <script src="script.js"></script>
 </body>
 </html>
