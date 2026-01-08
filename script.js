@@ -7,7 +7,7 @@ let bgMusicPlayer;
 let currentSong = null;
 let loginAttempts = 0;
 
-// Danh sách bài hát - FULL SƠN TÙNG M-TP + ALAN WALKER + NEFFEX & TheFatRat
+// Danh sách bài hát - FULL SƠN TÙNG M-TP + ALAN WALKER (có "Fire!") + NEFFEX & TheFatRat
 const songs = [
     // NEFFEX
     { title: "Fight Back", artist: "NEFFEX", id: "CYDP_8UTAus" },
@@ -35,14 +35,18 @@ const songs = [
     { title: "Warbringer", artist: "TheFatRat", id: "jiT2Mak9AzI" },
     { title: "Hiding in the Blue", artist: "TheFatRat", id: "lW0DIsC7n1U" },
 
-    // ALAN WALKER FULL
+    // ALAN WALKER FULL HOT (có "Fire!")
     { title: "Faded", artist: "Alan Walker", id: "60ItHLz5WEA" },
     { title: "Alone", artist: "Alan Walker", id: "1-xGerv5FOk" },
+    { title: "Sing Me to Sleep", artist: "Alan Walker", id: "TCBBBw1j4eA" },
+    { title: "The Spectre", artist: "Alan Walker", id: "w7d0k9G4jnU" },
     { title: "Lily", artist: "Alan Walker, K-391 & Emelie Hollow", id: "hdonNbzHHXE" },
     { title: "Darkside", artist: "Alan Walker", id: "M-P4QBt-FWw" },
     { title: "Ignite", artist: "K-391 & Alan Walker", id: "Az-mGR-CehY" },
+    { title: "On My Way", artist: "Alan Walker ft. Sabrina Carpenter & Farruko", id: "p-9j5w0Z3M" },
+    { title: "Fire!", artist: "Alan Walker ft. YUQI & JVKE", id: "rO1ANdXvdTg" },
 
-    // SƠN TÙNG M-TP FULL HIT HOT (official)
+    // SƠN TÙNG M-TP FULL HIT
     { title: "Hãy Trao Cho Anh", artist: "Sơn Tùng M-TP ft. Snoop Dogg", id: "knW7-x7Y7RE" },
     { title: "Muộn Rồi Mà Sao Còn", artist: "Sơn Tùng M-TP", id: "xypzmu5mMPY" },
     { title: "Chạy Ngay Đi", artist: "Sơn Tùng M-TP", id: "32sYGCOYJUM" },
@@ -108,10 +112,10 @@ function showInfo() {
     openModal(`
         <h2>ℹ️ THÔNG TIN & UPDATE</h2>
         <p><strong>Phiên bản 2.0 (08/01/2026)</p>
-        <p>- Thêm TOÀN BỘ hit Sơn Tùng M-TP (Hãy Trao Cho Anh, Muộn Rồi Mà Sao Còn, Chạy Ngay Đi, Nơi Này Có Anh, Lạc Trôi, Đừng Làm Trái Tim Anh Đau...)<br>
-        - Giữ full Alan Walker hot<br>
+        <p>- Thêm "Fire!" Alan Walker + full hit Alan Walker thiếu<br>
+        - Giữ full Sơn Tùng M-TP hot<br>
         - Giữ ẩn hoàn toàn YouTube player<br>
-        - Đoán sai trừ 10 điểm + Chịu thua hiện đáp án</p>
+        - Đoán sai trừ 10 điểm + Chịu thua hiện đáp án + Xóa tài khoản</p>
         <p>Liên hệ hỗ trợ: Herogoodboymc2024@gmail.com</p>
     `);
 }
