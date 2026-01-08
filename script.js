@@ -7,7 +7,7 @@ let bgMusicPlayer;
 let currentSong = null;
 let loginAttempts = 0;
 
-// Danh sách bài hát NEFFEX & TheFatRat (ID chính xác official, thêm My Way & Statement)
+// Danh sách bài hát (thêm nhiều NEFFEX & TheFatRat hot)
 const songs = [
     { title: "Fight Back", artist: "NEFFEX", id: "CYDP_8UTAus" },
     { title: "Best of Me", artist: "NEFFEX", id: "0Wa_CR0H8g4" },
@@ -20,6 +20,7 @@ const songs = [
     { title: "Desperate", artist: "NEFFEX", id: "kDYn3gLr6XU" },
     { title: "My Way", artist: "NEFFEX", id: "a6j5lbt6OLQ" },
     { title: "Statement", artist: "NEFFEX", id: "WeiM_vffWAw" },
+    { title: "Villains and Heroes", artist: "NEFFEX", id: "VLbTjYyiWDc" },
 
     { title: "Unity", artist: "TheFatRat", id: "n4tK7LYFxI0" },
     { title: "Monody", artist: "TheFatRat", id: "B7xai5u_tnk" },
@@ -36,13 +37,11 @@ const songs = [
     { title: "See You Again", artist: "Wiz Khalifa", id: "RgKAFK5djSk" },
 ];
 
-// Chuyển màn hình
 function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
 }
 
-// Modal đăng nhập (có quên mật khẩu sau 3 lần sai)
 function showLogin() {
     loginAttempts = 0;
     openModal(`
@@ -56,7 +55,6 @@ function showLogin() {
     `);
 }
 
-// Modal đăng ký
 function showRegister() {
     openModal(`
         <h2>Đăng ký tài khoản</h2>
@@ -67,7 +65,6 @@ function showRegister() {
     `);
 }
 
-// Modal báo lỗi
 function showReportBug() {
     openModal(`
         <h2>🛠️ Báo lỗi</h2>
@@ -87,20 +84,20 @@ function submitBug() {
     closeModal();
 }
 
-// Modal thông tin & update phiên bản 1.9
 function showInfo() {
     openModal(`
         <h2>ℹ️ THÔNG TIN & UPDATE</h2>
-        <p><strong>Phiên bản:</strong> 1.9 (08/01/2026)</p>
-        <p>- Fix lỗi trừ điểm âm vẫn dùng nút<br>
-        - Thêm "Quên mật khẩu?" sau 3 lần nhập sai<br>
-        - Ẩn hoàn toàn thumbnail YouTube<br>
-        - Tự động đăng nhập + Đăng xuất</p>
+        <p><strong>Phiên bản FINAL:</strong> 1.9 (08/01/2026)</p>
+        <p>- Thêm nút XÓA TÀI KHOẢN vĩnh viễn<br>
+        - Nút CHỊU THUA hiện đáp án đúng<br>
+        - Đoán sai trừ 10 điểm<br>
+        - Thêm nhiều bài NEFFEX mới (My Way, Statement...)<br>
+        - Ẩn hoàn toàn YouTube player<br>
+        - Sound gameshow đúng/sai</p>
         <p>Liên hệ hỗ trợ: Herogoodboymc2024@gmail.com</p>
     `);
 }
 
-// Mở / đóng modal
 function openModal(content) {
     document.getElementById('modalBody').innerHTML = content;
     document.getElementById('modal').style.display = 'block';
@@ -110,7 +107,6 @@ function closeModal() {
     document.getElementById('modal').style.display = 'none';
 }
 
-// TTS chị Google
 function speak(text) {
     if (!isTTS) return;
     const utterance = new SpeechSynthesisUtterance(text);
@@ -119,7 +115,6 @@ function speak(text) {
     speechSynthesis.speak(utterance);
 }
 
-// Đăng ký
 function register() {
     const name = document.getElementById('regName').value.trim();
     const email = document.getElementById('regEmail').value.trim();
@@ -130,7 +125,6 @@ function register() {
     closeModal();
 }
 
-// Đăng nhập + quên mật khẩu
 function login() {
     const input = document.getElementById('loginInput').value.trim();
     const pass = document.getElementById('loginPass').value;
@@ -149,7 +143,7 @@ function login() {
 
     currentUser = { email: input, name: user.name, score: user.score || 0 };
     localStorage.setItem('lastLoggedInUser', input);
-    showScreen('mainhome');
+    showScreen('mainHome');
     document.getElementById('welcomeUser').textContent = `Xin chào ${user.name}!`;
     speak(`Chào mừng ${user.name} quay lại trò chơi nghe nhạc đoán tên bài hát nhé!`);
     closeModal();
@@ -161,7 +155,6 @@ function login() {
     }
 }
 
-// Form quên mật khẩu
 function showForgotPassword() {
     openModal(`
         <h2>🔑 Yêu cầu hỗ trợ đổi mật khẩu</h2>
@@ -181,13 +174,11 @@ function submitForgotPassword() {
     closeModal();
 }
 
-// Hướng dẫn người mới
 function showTutorial() {
-    openModal(`<h2>Hướng dẫn chơi</h2><p>Nghe đoạn nhạc ngắn, đoán tên bài hát.</p><p>Đúng +10 điểm • Skip -30 • Từ bỏ -10</p><p>Chúc vui!</p>`);
-    speak("Hướng dẫn chơi: Nghe đoạn nhạc ngắn, đoán tên bài hát chính xác nhất. Đúng cộng 10 điểm. Skip trừ 30. Từ bỏ trừ 10. Chúc bạn chơi vui!");
+    openModal(`<h2>Hướng dẫn chơi</h2><p>Nghe đoạn nhạc ngắn, đoán tên bài hát.</p><p>Đúng +10 điểm • Sai -10 điểm • Skip -30 • Từ bỏ -10</p><p>Chúc vui!</p>`);
+    speak("Hướng dẫn chơi: Nghe đoạn nhạc ngắn, đoán tên bài hát chính xác nhất. Đúng cộng 10 điểm. Sai trừ 10 điểm. Skip trừ 30. Từ bỏ trừ 10. Chúc bạn chơi vui!");
 }
 
-// Bắt đầu chơi
 function startGame() {
     score = currentUser ? (JSON.parse(localStorage.getItem(currentUser.email)).score || 0) : 0;
     questionNum = 1;
@@ -196,6 +187,28 @@ function startGame() {
     showScreen('mainGame');
     loadNewSong();
     speak("Bắt đầu chơi nào! Bấm nút phát để nghe đoạn nhạc và đoán tên bài hát nhé. Không nhìn gì hết, chỉ nghe thôi!");
+}
+
+function logout() {
+    if (confirm("Bạn có chắc muốn đăng xuất không? Điểm số vẫn được lưu lại nhé!")) {
+        localStorage.removeItem('lastLoggedInUser');
+        currentUser = null;
+        showScreen('mainMenu');
+        showNotification("✅ Đã đăng xuất thành công!");
+        speak("Tạm biệt nhé, hẹn gặp lại bạn trong lần chơi sau!");
+    }
+}
+
+// NÚT XÓA TÀI KHOẢN
+function deleteAccountConfirm() {
+    if (confirm("Bạn chắc chắn muốn xóa tài khoản của mình chứ, một khi xóa là không thể khôi phục bạn đồng ý?")) {
+        localStorage.removeItem(currentUser.email);
+        localStorage.removeItem('lastLoggedInUser');
+        currentUser = null;
+        showScreen('mainMenu');
+        showNotification("❌ Tài khoản đã bị xóa vĩnh viễn!");
+        speak("Tài khoản đã bị xóa hoàn toàn. Cảm ơn bạn đã chơi!");
+    }
 }
 
 // Load YouTube API
@@ -212,14 +225,14 @@ function onYouTubeIframeAPIReady() {
     loadNewSong();
 }
 
-// Load bài hát mới - Ẩn hoàn toàn thumbnail
+// Load bài hát mới - ẨN HOÀN TOÀN PLAYER
 function loadNewSong() {
     currentSong = songs[Math.floor(Math.random() * songs.length)];
     if (player) player.destroy();
 
     player = new YT.Player('songClipPlayer', {
-        height: '0',  // Set height 0 để ẩn hoàn toàn video
-        width: '0',   // Set width 0 để ẩn hoàn toàn
+        height: '0',
+        width: '0',
         videoId: currentSong.id,
         playerVars: {
             start: Math.floor(Math.random() * 40) + 20,
@@ -235,15 +248,12 @@ function loadNewSong() {
             playsinline: 1
         },
         events: {
-            onReady: () => {
-                console.log("Load bài thành công - player ẩn hoàn toàn: " + currentSong.title);
-            },
+            onReady: () => console.log("Player ẩn hoàn toàn - chỉ audio: " + currentSong.title),
             onError: () => loadNewSong()
         }
     });
 }
 
-// Phát nhạc
 function playClip() {
     if (player && typeof player.playVideo === 'function') {
         player.playVideo();
@@ -254,7 +264,7 @@ function playClip() {
     }
 }
 
-// Gửi đáp án - SOUND EFFECT MỚI GAMESHOW
+// Gửi đáp án - Đoán sai trừ 10 điểm
 function submitAnswer() {
     const input = document.getElementById('answerInput').value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const correct = currentSong.title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -262,10 +272,11 @@ function submitAnswer() {
     if (input && (input.includes(correct) || correct.includes(input))) {
         score += 10;
         showNotification("✅ Đúng rồi! +10 điểm");
-        new Audio('https://www.myinstants.com/media/sounds/correct-answer-gameshow.mp3').play(); // SOUND ĐÚNG MỚI
+        new Audio('https://www.myinstants.com/media/sounds/correct-answer-gameshow.mp3').play();
     } else {
-        showNotification("❌ Sai rồi! Hãy thử lại nhé");
-        new Audio('https://www.myinstants.com/media/sounds/wrong-answer-gameshow.mp3').play(); // SOUND SAI MỚI
+        score -= 10;
+        showNotification("❌ Sai rồi! -10 điểm");
+        new Audio('https://www.myinstants.com/media/sounds/wrong-answer-gameshow.mp3').play();
     }
 
     document.getElementById('score').textContent = score;
@@ -282,7 +293,14 @@ function submitAnswer() {
     loadNewSong();
 }
 
-// Fix lỗi trừ điểm âm
+// Nút Chịu thua
+function surrenderConfirm() {
+    if (confirm("Bạn chắc chắn chịu thua? Sẽ hiện đáp án đúng và chuyển bài mới nhé!")) {
+        showNotification(`Đáp án đúng là: "${currentSong.title}" của ${currentSong.artist}!`);
+        loadNewSong();
+    }
+}
+
 function skipConfirm() {
     if (score < 30) {
         showNotification("❌ Không đủ điểm để SKIP! (cần 30 điểm)");
@@ -326,7 +344,6 @@ function backToHome() {
     showScreen('mainHome');
 }
 
-// Lưu data mỗi 5 phút
 setInterval(() => {
     if (currentUser) {
         showNotification("⚠️ HỆ THỐNG ĐANG LƯU DATA CHO BẠN, CẤM RELOAD TRANG LẠI ⚠️");
@@ -339,7 +356,6 @@ setInterval(() => {
     }
 }, 300000);
 
-// Thông báo toast
 function showNotification(msg) {
     const notif = document.getElementById('notification');
     notif.textContent = msg;
@@ -347,23 +363,20 @@ function showNotification(msg) {
     setTimeout(() => notif.style.display = 'none', 4000);
 }
 
-// TTS toggle
 document.getElementById('ttsToggle').addEventListener('change', function() {
     isTTS = this.checked;
 });
 
-// Thêm player div - Set height 0 để ẩn hoàn toàn
 function addPlayerDivs() {
     const musicPlayer = document.querySelector('.music-player');
     if (musicPlayer && !document.getElementById('songClipPlayer')) {
         musicPlayer.insertAdjacentHTML('beforeend', `
-            <div id="songClipPlayer" style="margin:20px 0; border-radius:15px; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.5); width:100%; background:#000; height:0;"></div>
+            <div id="songClipPlayer" style="display:none;"></div>
             <div id="bgMusicPlayer" style="display:none;"></div>
         `);
     }
 }
 
-// Khởi động - Auto login
 window.onload = () => {
     addPlayerDivs();
 
