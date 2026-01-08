@@ -13,10 +13,9 @@
             <h1 class="title">WEBSITE NGHE NHẠC ĐOÁN BÀI HÁT</h1>
             <p class="subtitle">
                 ĐƯỢC TẠO BỞI: Nguyễn Chí Dự 🇻🇳♥️🇻🇳<br>
-                <small>Phiên bản 1.9 (08/01/2026) • Thêm nút Chịu thua (hiện đáp án đúng)<br>
-                Chỉ nghe nhạc đoán tên – siêu khó, siêu fair!<br>
-                Phát nhạc thật từ NEFFEX & TheFatRat<br>
-                Có lỗi kéo xuống chân trang bấm nút báo lỗi nhé!</small>
+                <small>Phiên bản FINAL 1.9 (08/01/2026)<br>
+                Thêm hết moẹ: Xóa tài khoản, Chịu thua hiện đáp án, nhiều bài NEFFEX mới, ẩn player hoàn toàn<br>
+                Chỉ nghe nhạc đoán tên – siêu khó, siêu fair!</small>
             </p>
 
             <button class="btn primary large" onclick="showLogin()">ĐĂNG NHẬP</button>
@@ -45,6 +44,8 @@
 
             <button class="btn danger large" onclick="logout()">🚪 ĐĂNG XUẤT</button>
 
+            <button class="btn danger large" onclick="deleteAccountConfirm()">🗑️ XÓA TÀI KHOẢN</button>
+
             <div class="footer">
                 <button class="btn small outline" onclick="showReportBug()">🛠️ Báo lỗi</button>
             </div>
@@ -60,14 +61,13 @@
 
         <div class="music-player">
             <button id="playBtn" class="play-button" onclick="playClip()">▶️ PHÁT ĐOẠN NHẠC</button>
-            <p class="hint">Chỉ nghe âm thanh thôi nhé – chúc may mắn 😉<br>
-            Đoán tên bài hát của NEFFEX & TheFatRat nào! Chị Google sẽ giúp bạn nếu cần!</p>
+            <p class="hint">Chỉ nghe âm thanh thôi nhé – chúc may mắn 😉 <br>
+            Đoán tên bài hát của NEFFEX & TheFatRat nào! Đoán sai trừ 10 điểm đấy!</p>
         </div>
 
         <div class="answer-section">
             <input type="text" id="answerInput" placeholder="Nhập tên bài hát ở đây..." autocomplete="off">
             <button class="btn primary" onclick="submitAnswer()">GỬI ĐÁP ÁN</button>
-            <!-- Nút Chịu thua mới thêm -->
             <button class="btn giveup" onclick="surrenderConfirm()">😞 CHỊU THUA</button>
         </div>
 
