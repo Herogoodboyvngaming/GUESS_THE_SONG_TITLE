@@ -13,8 +13,9 @@
             <h1 class="title">WEBSITE NGHE NHẠC ĐOÁN BÀI HÁT</h1>
             <p class="subtitle">
                 ĐƯỢC TẠO BỞI: Nguyễn Chí Dự 🇻🇳♥️🇻🇳<br>
-                <small>Phiên bản 2.1 – UPDATE LỚN CHƯA TỪNG THẤY CỦA TUI OMG!<br>
-                Thêm Admin Panel, Moderator, Slash Commands, Profile ID, Anti-cheat<br>
+                <small>Phiên bản 2.2 – UPDATE CỰC ĐẶC BIỆT LẦN 2 (08/01/2026)<br>
+                Thêm lệnh admin nhanh: /stop, /skip (miễn phí), /home, /restart<br>
+                Thêm nút ADD ADMIN trong panel<br>
                 Bắt buộc online + tài khoản để chơi – siêu hiện đại, siêu quản lý!</small>
             </p>
 
@@ -32,7 +33,8 @@
         <div class="container">
             <h1>Xin chào!</h1>
             <p id="welcomeUser" class="welcome-text">Đang tải...</p>
-            <p id="userProfile" style="font-size:1.2rem; color:#a0e7ff; margin:20px 0;"></p>
+            <!-- Profile ID mới thêm -->
+            <p id="userProfile" style="font-size:1.2rem; color:#a0e7ff; margin:20px 0; font-weight:bold;"></p>
 
             <button class="btn primary extra-large" onclick="checkOnlineAndLogin()">🎵 BẮT ĐẦU CHƠI</button>
 
@@ -47,7 +49,7 @@
 
             <button class="btn danger large" onclick="deleteAccountConfirm()">🗑️ XÓA TÀI KHOẢN</button>
 
-            <!-- NÚT ADMIN PANEL MỚI -->
+            <!-- NÚT ADMIN PANEL -->
             <button class="btn danger large" onclick="showAdminLogin()">🔧 ADMIN PANEL</button>
 
             <div class="footer">
@@ -66,7 +68,7 @@
         <div class="music-player">
             <button id="playBtn" class="play-button" onclick="playClip()">▶️ PHÁT ĐOẠN NHẠC</button>
             <p class="hint">Chỉ nghe âm thanh thôi nhé – chúc may mắn 😉<br>
-            Đoán tên bài hát của Sơn Tùng, Alan Walker, NEFFEX, TheFatRat nào!</p>
+            Đoán tên bài hát hoặc dùng lệnh admin (/help để xem lệnh)</p>
         </div>
 
         <div class="answer-section">
