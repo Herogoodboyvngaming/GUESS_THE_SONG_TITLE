@@ -9,9 +9,10 @@ let loginAttempts = 0;
 let isOnline = navigator.onLine;
 let commandsEnabled = true;
 
-// Admin credentials (bí mật tuyệt đối!!)
+// Admin credentials + list admin
 const ADMIN_USERNAME = "herogoodboyvngaming";
 const ADMIN_PASSWORD = "Nguyen2009";
+let adminList = ["herogoodboymc@gmail.com"]; // Owner mặc định là admin
 
 // Danh sách bài hát - FULL SƠN TÙNG M-TP + ALAN WALKER ("Fire!") + NEFFEX & TheFatRat
 const songs = [
@@ -41,7 +42,7 @@ const songs = [
     { title: "Warbringer", artist: "TheFatRat", id: "jiT2Mak9AzI" },
     { title: "Hiding in the Blue", artist: "TheFatRat", id: "lW0DIsC7n1U" },
 
-    // ALAN WALKER FULL (có "Fire!")
+    // ALAN WALKER FULL HOT (có "Fire!")
     { title: "Faded", artist: "Alan Walker", id: "60ItHLz5WEA" },
     { title: "Alone", artist: "Alan Walker", id: "1-xGerv5FOk" },
     { title: "Sing Me to Sleep", artist: "Alan Walker", id: "TCBBBw1j4eA" },
@@ -70,20 +71,6 @@ const songs = [
 function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-}
-
-// Kiểm tra online + login trước khi chơi
-function checkOnlineAndLogin() {
-    if (!navigator.onLine) {
-        alert("Bạn cần kết nối WiFi hoặc 4G để chơi game!");
-        return;
-    }
-    if (!currentUser) {
-        alert("Bạn cần đăng nhập hoặc đăng ký tài khoản để chơi!");
-        showLogin();
-        return;
-    }
-    startGame();
 }
 
 function showLogin() {
@@ -131,12 +118,11 @@ function submitBug() {
 function showInfo() {
     openModal(`
         <h2>ℹ️ THÔNG TIN & UPDATE</h2>
-        <p><strong>Phiên bản 2.1 – UPDATE LỚN CHƯA TỪNG THẤY CỦA TUI OMG!</p>
-        <p>- Thêm Admin Panel + Moderator + Slash Commands<br>
-        - Thêm Profile ID ngẫu nhiên<br>
-        - Anti-cheat tự động ban<br>
-        - Bắt buộc online + tài khoản để chơi<br>
-        - Thêm full Sơn Tùng + Alan Walker "Fire!"</p>
+        <p><strong>Phiên bản 2.2 (08/01/2026)</p>
+        <p>- Thêm lệnh admin nhanh: /stop, /skip (miễn phí), /home, /restart<br>
+        - Thêm nút ADD ADMIN trong panel<br>
+        - Bảo vệ Owner không bị ban/kick<br>
+        - Giữ full Sơn Tùng + Alan Walker "Fire!"</p>
         <p>Liên hệ hỗ trợ: Herogoodboymc2024@gmail.com</p>
     `);
 }
@@ -235,6 +221,19 @@ function showTutorial() {
     speak("Hướng dẫn chơi: Nghe đoạn nhạc ngắn, đoán tên bài hát chính xác nhất. Đúng cộng 10 điểm. Sai trừ 10 điểm. Skip trừ 30. Từ bỏ trừ 10. Chúc bạn chơi vui!");
 }
 
+function checkOnlineAndLogin() {
+    if (!navigator.onLine) {
+        alert("Bạn cần kết nối WiFi hoặc 4G để chơi game!");
+        return;
+    }
+    if (!currentUser) {
+        alert("Bạn cần đăng nhập hoặc đăng ký tài khoản để chơi!");
+        showLogin();
+        return;
+    }
+    startGame();
+}
+
 function startGame() {
     score = currentUser ? (JSON.parse(localStorage.getItem(currentUser.email)).score || 0) : 0;
     questionNum = 1;
@@ -295,7 +294,7 @@ function finalDeleteAccount() {
     speak("Tài khoản đã bị xóa hoàn toàn. Cảm ơn bạn đã chơi trò chơi của Nguyễn Chí Dự!");
 }
 
-// ADMIN PANEL
+// ADMIN PANEL + ADD ADMIN + LỆNH NHANH
 function showAdminLogin() {
     openModal(`
         <h2>🔧 ADMIN PANEL</h2>
@@ -321,27 +320,111 @@ function loginAdmin() {
 function showAdminPanel() {
     openModal(`
         <h2>🔧 ADMIN PANEL - MODERATOR</h2>
-        <p>Chào mừng Admin <strong>${ADMIN_USERNAME}</strong>!</p>
+        <p>Chào mừng Admin <strong>${currentUser.name || currentUser.email}</strong>!</p>
         <p>Lệnh slash command hiện tại: <strong>${commandsEnabled ? "BẬT" : "TẮT"}</strong></p>
         <button class="btn ${commandsEnabled ? 'warning' : 'primary'}" onclick="toggleCommands()">
             ${commandsEnabled ? 'TẮT' : 'BẬT'} LỆNH COMMAND
         </button>
         <hr>
-        <p><strong>Danh sách lệnh:</strong></p>
+        <h3>Thêm Admin mới</h3>
+        <input type="text" id="newAdminID" placeholder="Nhập Gmail hoặc ID người dùng" style="width:100%; padding:12px; border-radius:50px; border:none; margin-bottom:10px;">
+        <button class="btn primary" onclick="addNewAdmin()">ADD ADMIN</button>
+        <hr>
+        <p><strong>Lệnh nhanh (gõ vào ô đoán bài hát):</strong></p>
         <ul style="text-align:left;">
-            <li>/addpoint [số] → cộng điểm cho bạn</li>
-            <li>/ban [ID] → ban người dùng</li>
-            <li>/kick [ID] → đá người dùng (đóng tab)</li>
+            <li>/stop → dừng game</li>
+            <li>/skip → skip miễn phí</li>
+            <li>/home → về trang chủ</li>
+            <li>/restart → chơi lại</li>
+            <li>/addpoint [số] → cộng điểm</li>
+            <li>/ban [ID] → ban</li>
+            <li>/kick [ID] → kick</li>
             <li>/help → xem lệnh</li>
         </ul>
-        <p>Nhập lệnh vào ô đoán bài hát để dùng (chỉ admin).</p>
     `);
+}
+
+function addNewAdmin() {
+    const newAdmin = document.getElementById('newAdminID').value.trim();
+    if (!newAdmin) {
+        alert("Vui lòng nhập Gmail hoặc ID!");
+        return;
+    }
+    if (adminList.includes(newAdmin)) {
+        alert("Người này đã là admin rồi!");
+        return;
+    }
+    adminList.push(newAdmin);
+    alert(`Đã cấp quyền ADMIN cho ${newAdmin}!`);
+    showNotification(`✅ Đã add admin mới: ${newAdmin}`);
+    showAdminPanel();
 }
 
 function toggleCommands() {
     commandsEnabled = !commandsEnabled;
     showNotification(commandsEnabled ? "✅ Đã BẬT lệnh command!" : "❌ Đã TẮT lệnh command!");
     showAdminPanel();
+}
+
+// Kiểm tra admin
+function isAdmin() {
+    return currentUser && adminList.includes(currentUser.email);
+}
+
+// Xử lý lệnh admin
+function handleAdminCommand(cmd) {
+    const parts = cmd.slice(1).split(" ");
+    const command = parts[0].toLowerCase();
+    const arg = parts.slice(1).join(" ");
+
+    // Bảo vệ Owner
+    if (currentUser.email === "herogoodboymc@gmail.com") {
+        if (command === "ban" || command === "kick") {
+            showNotification("❌ Không thể dùng lệnh này với Owner!");
+            return;
+        }
+    }
+
+    if (command === "stop") {
+        backToHome();
+        showNotification("🛑 Admin dừng game!");
+    } else if (command === "skip") {
+        loadNewSong();
+        showNotification("⏩ Admin skip miễn phí!");
+    } else if (command === "home") {
+        backToHome();
+        showNotification("🏠 Admin về trang chủ!");
+    } else if (command === "restart") {
+        startGame();
+        showNotification("🔃 Admin restart game!");
+    } else if (command === "addpoint") {
+        const points = parseInt(arg);
+        if (!isNaN(points)) {
+            score += points;
+            document.getElementById('score').textContent = score;
+            showNotification(`✅ Admin cộng +${points} điểm!`);
+        } else {
+            showNotification("❌ Sai cú pháp! /addpoint [số điểm]");
+        }
+    } else if (command === "ban") {
+        if (arg) {
+            showNotification(`🔨 Đã BAN người dùng ${arg}!`);
+        } else {
+            showNotification("❌ Sai cú pháp! /ban [ID]");
+        }
+    } else if (command === "kick") {
+        if (arg) {
+            showNotification(`👢 Đã KICK người dùng ${arg}!`);
+            alert("Bạn bị KICK bởi Admin! Website sẽ đóng.");
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification("❌ Sai cú pháp! /kick [ID]");
+        }
+    } else if (command === "help") {
+        showNotification("Lệnh: /stop, /skip, /home, /restart, /addpoint, /ban, /kick, /help");
+    } else {
+        showNotification("❌ Lệnh không tồn tại! Gõ /help");
+    }
 }
 
 const tag = document.createElement('script');
@@ -362,8 +445,8 @@ function loadNewSong() {
     if (player) player.destroy();
 
     player = new YT.Player('songClipPlayer', {
-        height: '0',
-        width: '0',
+        height: '1',
+        width: '1',
         videoId: currentSong.id,
         playerVars: {
             start: Math.floor(Math.random() * 40) + 20,
@@ -379,7 +462,16 @@ function loadNewSong() {
             playsinline: 1
         },
         events: {
-            onReady: () => console.log("Player ẩn hoàn toàn - chỉ audio: " + currentSong.title),
+            onReady: () => {
+                const iframe = document.querySelector('#songClipPlayer iframe');
+                if (iframe) {
+                    iframe.style.position = 'absolute';
+                    iframe.style.left = '-100px';
+                    iframe.style.opacity = '0';
+                    iframe.style.pointerEvents = 'none';
+                }
+                console.log("Player sẵn sàng - chỉ audio: " + currentSong.title);
+            },
             onError: () => loadNewSong()
         }
     });
@@ -398,14 +490,14 @@ function playClip() {
 function submitAnswer() {
     const input = document.getElementById('answerInput').value.trim();
 
-    // Xử lý lệnh admin trước
-    if (input.startsWith("/") && commandsEnabled && currentUser && currentUser.email.includes("herogoodboy")) { // chỉ admin dùng
+    // Lệnh admin
+    if (input.startsWith("/") && commandsEnabled && isAdmin()) {
         handleAdminCommand(input);
         document.getElementById('answerInput').value = '';
         return;
     }
 
-    // Đoán bài hát bình thường
+    // Đoán bài hát
     const normalizedInput = input.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const normalizedCorrect = currentSong.title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
@@ -432,49 +524,6 @@ function submitAnswer() {
 
     loadNewSong();
 }
-
-function handleAdminCommand(cmd) {
-    const parts = cmd.slice(1).split(" ");
-    const command = parts[0].toLowerCase();
-    const arg = parts.slice(1).join(" ");
-
-    // Bảo vệ Owner - không cho dùng lệnh vào chính mình
-    if (currentUser.email === "herogoodboymc@gmail.com") {
-        if (command === "ban" || command === "kick") {
-            showNotification("❌ Không thể dùng lệnh này với Owner!");
-            return;
-        }
-    }
-
-    if (command === "addpoint") {
-        const points = parseInt(arg);
-        if (!isNaN(points)) {
-            score += points;
-            document.getElementById('score').textContent = score;
-            showNotification(`✅ Admin cộng +${points} điểm!`);
-        } else {
-            showNotification("❌ Sai cú pháp! /addpoint [số điểm]");
-        }
-    } else if (command === "ban") {
-        if (arg) {
-            showNotification(`🔨 Đã BAN người dùng ${arg}!`);
-        } else {
-            showNotification("❌ Sai cú pháp! /ban [ID]");
-        }
-    } else if (command === "kick") {
-        if (arg) {
-            showNotification(`👢 Đã KICK người dùng ${arg}! Đóng tab...`);
-            alert("Bạn bị KICK bởi Admin! Website sẽ đóng.");
-            setTimeout(() => location.reload(), 1000);
-        } else {
-            showNotification("❌ Sai cú pháp! /kick [ID]");
-        }
-    } else if (command === "help") {
-        showNotification("Lệnh admin: /addpoint [số], /ban [ID], /kick [ID], /help");
-    } else {
-        showNotification("❌ Lệnh không tồn tại! Gõ /help để xem danh sách.");
-    }
-        }
 
 function surrenderConfirm() {
     if (confirm("Bạn chắc chắn chịu thua? Sẽ hiện đáp án đúng và chuyển bài mới nhé!")) {
@@ -553,7 +602,7 @@ function addPlayerDivs() {
     const musicPlayer = document.querySelector('.music-player');
     if (musicPlayer && !document.getElementById('songClipPlayer')) {
         musicPlayer.insertAdjacentHTML('beforeend', `
-            <div id="songClipPlayer" style="display:none;"></div>
+            <div id="songClipPlayer" style="position:absolute; left:-100px; opacity:0; pointer-events:none;"></div>
             <div id="bgMusicPlayer" style="display:none;"></div>
         `);
     }
