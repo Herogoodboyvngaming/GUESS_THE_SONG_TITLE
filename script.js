@@ -201,7 +201,7 @@ function logout() {
 
 // NÚT XÓA TÀI KHOẢN
 function deleteAccountConfirm() {
-    if (confirm("Bạn chắc chắn muốn xóa tài khoản của mình chứ, một khi xóa là không thể khôi phục bạn đồng ý?")) {
+    if (confirm("Bạn chắc chắn muốn xóa tài khoản của mình chứ, một khi xóa là không thể khôi phục bạn đồng ý chứ?")) {
         localStorage.removeItem(currentUser.email);
         localStorage.removeItem('lastLoggedInUser');
         currentUser = null;
