@@ -7,8 +7,9 @@ let bgMusicPlayer;
 let currentSong = null;
 let loginAttempts = 0;
 
-// Danh sách bài hát (thêm nhiều NEFFEX & TheFatRat hot)
+// Danh sách bài hát - FULL SƠN TÙNG M-TP + ALAN WALKER + NEFFEX & TheFatRat
 const songs = [
+    // NEFFEX
     { title: "Fight Back", artist: "NEFFEX", id: "CYDP_8UTAus" },
     { title: "Best of Me", artist: "NEFFEX", id: "0Wa_CR0H8g4" },
     { title: "Rumors", artist: "NEFFEX", id: "LT_XSMrqS8M" },
@@ -20,8 +21,8 @@ const songs = [
     { title: "Desperate", artist: "NEFFEX", id: "kDYn3gLr6XU" },
     { title: "My Way", artist: "NEFFEX", id: "a6j5lbt6OLQ" },
     { title: "Statement", artist: "NEFFEX", id: "WeiM_vffWAw" },
-    { title: "Villains and Heroes", artist: "NEFFEX", id: "VLbTjYyiWDc" },
 
+    // TheFatRat
     { title: "Unity", artist: "TheFatRat", id: "n4tK7LYFxI0" },
     { title: "Monody", artist: "TheFatRat", id: "B7xai5u_tnk" },
     { title: "Fly Away", artist: "TheFatRat", id: "cMg8KaMdDYo" },
@@ -33,6 +34,25 @@ const songs = [
     { title: "Time Lapse", artist: "TheFatRat", id: "3Fx5QNEz1yo" },
     { title: "Warbringer", artist: "TheFatRat", id: "jiT2Mak9AzI" },
     { title: "Hiding in the Blue", artist: "TheFatRat", id: "lW0DIsC7n1U" },
+
+    // ALAN WALKER FULL
+    { title: "Faded", artist: "Alan Walker", id: "60ItHLz5WEA" },
+    { title: "Alone", artist: "Alan Walker", id: "1-xGerv5FOk" },
+    { title: "Lily", artist: "Alan Walker, K-391 & Emelie Hollow", id: "hdonNbzHHXE" },
+    { title: "Darkside", artist: "Alan Walker", id: "M-P4QBt-FWw" },
+    { title: "Ignite", artist: "K-391 & Alan Walker", id: "Az-mGR-CehY" },
+
+    // SƠN TÙNG M-TP FULL HIT HOT (official)
+    { title: "Hãy Trao Cho Anh", artist: "Sơn Tùng M-TP ft. Snoop Dogg", id: "knW7-x7Y7RE" },
+    { title: "Muộn Rồi Mà Sao Còn", artist: "Sơn Tùng M-TP", id: "xypzmu5mMPY" },
+    { title: "Chạy Ngay Đi", artist: "Sơn Tùng M-TP", id: "32sYGCOYJUM" },
+    { title: "Nơi Này Có Anh", artist: "Sơn Tùng M-TP", id: "FN7ALfpGxiI" },
+    { title: "Lạc Trôi", artist: "Sơn Tùng M-TP", id: "_2l6M3G1GDc" },
+    { title: "Chúng Ta Của Hiện Tại", artist: "Sơn Tùng M-TP", id: "psZ1g9fMfeo" },
+    { title: "Có Chắc Yêu Là Đây", artist: "Sơn Tùng M-TP", id: "rQuy4aZxTKE" },
+    { title: "Đừng Làm Trái Tim Anh Đau", artist: "Sơn Tùng M-TP", id: "abPmZCZZrFA" },
+    { title: "Buông Đôi Tay Nhau Ra", artist: "Sơn Tùng M-TP", id: "9g3BgM4uI0g" },
+    { title: "Âm Thầm Bên Em", artist: "Sơn Tùng M-TP", id: "0W_wY0sZgtQ" },
 
     { title: "See You Again", artist: "Wiz Khalifa", id: "RgKAFK5djSk" },
 ];
@@ -87,13 +107,11 @@ function submitBug() {
 function showInfo() {
     openModal(`
         <h2>ℹ️ THÔNG TIN & UPDATE</h2>
-        <p><strong>Phiên bản FINAL:</strong> 1.9 (08/01/2026)</p>
-        <p>- Thêm nút XÓA TÀI KHOẢN vĩnh viễn<br>
-        - Nút CHỊU THUA hiện đáp án đúng<br>
-        - Đoán sai trừ 10 điểm<br>
-        - Thêm nhiều bài NEFFEX mới (My Way, Statement...)<br>
-        - Ẩn hoàn toàn YouTube player<br>
-        - Sound gameshow đúng/sai</p>
+        <p><strong>Phiên bản 2.0 (08/01/2026)</p>
+        <p>- Thêm TOÀN BỘ hit Sơn Tùng M-TP (Hãy Trao Cho Anh, Muộn Rồi Mà Sao Còn, Chạy Ngay Đi, Nơi Này Có Anh, Lạc Trôi, Đừng Làm Trái Tim Anh Đau...)<br>
+        - Giữ full Alan Walker hot<br>
+        - Giữ ẩn hoàn toàn YouTube player<br>
+        - Đoán sai trừ 10 điểm + Chịu thua hiện đáp án</p>
         <p>Liên hệ hỗ trợ: Herogoodboymc2024@gmail.com</p>
     `);
 }
@@ -199,7 +217,6 @@ function logout() {
     }
 }
 
-// NÚT XÓA TÀI KHOẢN
 function deleteAccountConfirm() {
     if (confirm("Bạn chắc chắn muốn xóa tài khoản của mình chứ, một khi xóa là không thể khôi phục bạn đồng ý chứ?")) {
         localStorage.removeItem(currentUser.email);
@@ -211,7 +228,6 @@ function deleteAccountConfirm() {
     }
 }
 
-// Load YouTube API
 const tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
 document.head.appendChild(tag);
@@ -225,7 +241,6 @@ function onYouTubeIframeAPIReady() {
     loadNewSong();
 }
 
-// Load bài hát mới - ẨN HOÀN TOÀN PLAYER
 function loadNewSong() {
     currentSong = songs[Math.floor(Math.random() * songs.length)];
     if (player) player.destroy();
@@ -264,7 +279,6 @@ function playClip() {
     }
 }
 
-// Gửi đáp án - Đoán sai trừ 10 điểm
 function submitAnswer() {
     const input = document.getElementById('answerInput').value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const correct = currentSong.title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -293,7 +307,6 @@ function submitAnswer() {
     loadNewSong();
 }
 
-// Nút Chịu thua
 function surrenderConfirm() {
     if (confirm("Bạn chắc chắn chịu thua? Sẽ hiện đáp án đúng và chuyển bài mới nhé!")) {
         showNotification(`Đáp án đúng là: "${currentSong.title}" của ${currentSong.artist}!`);
