@@ -438,6 +438,14 @@ function handleAdminCommand(cmd) {
     const command = parts[0].toLowerCase();
     const arg = parts.slice(1).join(" ");
 
+    // Bảo vệ Owner - không cho dùng lệnh vào chính mình
+    if (currentUser.email === "herogoodboymc@gmail.com") {
+        if (command === "ban" || command === "kick") {
+            showNotification("❌ Không thể dùng lệnh này với Owner!");
+            return;
+        }
+    }
+
     if (command === "addpoint") {
         const points = parseInt(arg);
         if (!isNaN(points)) {
@@ -450,7 +458,6 @@ function handleAdminCommand(cmd) {
     } else if (command === "ban") {
         if (arg) {
             showNotification(`🔨 Đã BAN người dùng ${arg}!`);
-            // Code ban thật (xóa localStorage key nếu biết email)
         } else {
             showNotification("❌ Sai cú pháp! /ban [ID]");
         }
@@ -467,7 +474,7 @@ function handleAdminCommand(cmd) {
     } else {
         showNotification("❌ Lệnh không tồn tại! Gõ /help để xem danh sách.");
     }
-}
+        }
 
 function surrenderConfirm() {
     if (confirm("Bạn chắc chắn chịu thua? Sẽ hiện đáp án đúng và chuyển bài mới nhé!")) {
