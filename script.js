@@ -7,7 +7,7 @@ let bgMusicPlayer;
 let currentSong = null;
 let loginAttempts = 0;
 
-// Danh sách bài hát NEFFEX & TheFatRat (ID chính xác official)
+// Danh sách bài hát NEFFEX & TheFatRat (ID chính xác official, thêm My Way & Statement)
 const songs = [
     { title: "Fight Back", artist: "NEFFEX", id: "CYDP_8UTAus" },
     { title: "Best of Me", artist: "NEFFEX", id: "0Wa_CR0H8g4" },
@@ -149,7 +149,7 @@ function login() {
 
     currentUser = { email: input, name: user.name, score: user.score || 0 };
     localStorage.setItem('lastLoggedInUser', input);
-    showScreen('mainHome');
+    showScreen('mainhome');
     document.getElementById('welcomeUser').textContent = `Xin chào ${user.name}!`;
     speak(`Chào mừng ${user.name} quay lại trò chơi nghe nhạc đoán tên bài hát nhé!`);
     closeModal();
@@ -218,8 +218,8 @@ function loadNewSong() {
     if (player) player.destroy();
 
     player = new YT.Player('songClipPlayer', {
-        height: '80',
-        width: '100%',
+        height: '0',  // Set height 0 để ẩn hoàn toàn video
+        width: '0',   // Set width 0 để ẩn hoàn toàn
         videoId: currentSong.id,
         playerVars: {
             start: Math.floor(Math.random() * 40) + 20,
@@ -236,8 +236,7 @@ function loadNewSong() {
         },
         events: {
             onReady: () => {
-                const iframe = document.querySelector('#songClipPlayer iframe');
-                if (iframe) iframe.style.background = '#000';
+                console.log("Load bài thành công - player ẩn hoàn toàn: " + currentSong.title);
             },
             onError: () => loadNewSong()
         }
@@ -353,12 +352,12 @@ document.getElementById('ttsToggle').addEventListener('change', function() {
     isTTS = this.checked;
 });
 
-// Thêm player div
+// Thêm player div - Set height 0 để ẩn hoàn toàn
 function addPlayerDivs() {
     const musicPlayer = document.querySelector('.music-player');
     if (musicPlayer && !document.getElementById('songClipPlayer')) {
         musicPlayer.insertAdjacentHTML('beforeend', `
-            <div id="songClipPlayer" style="margin:20px 0; border-radius:15px; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.5); width:100%; background:#000; height:80px;"></div>
+            <div id="songClipPlayer" style="margin:20px 0; border-radius:15px; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.5); width:100%; background:#000; height:0;"></div>
             <div id="bgMusicPlayer" style="display:none;"></div>
         `);
     }
