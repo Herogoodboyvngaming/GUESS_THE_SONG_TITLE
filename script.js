@@ -9,14 +9,29 @@ let loginAttempts = 0;
 let isOnline = navigator.onLine;
 let commandsEnabled = true;
 
-// Admin credentials + list admin
+// Admin credentials + list admin (lưu vĩnh viễn)
 const ADMIN_USERNAME = "herogoodboyvngaming";
 const ADMIN_PASSWORD = "Nguyen2009";
-let adminList = ["herogoodboymc@gmail.com"]; // Owner mặc định là admin
+let adminList = [];
+
+// Load adminList từ localStorage
+function loadAdminList() {
+    const saved = localStorage.getItem('gameAdminList');
+    if (saved) {
+        adminList = JSON.parse(saved);
+    } else {
+        adminList = ["herogoodboymc@gmail.com"]; // Owner mặc định
+        localStorage.setItem('gameAdminList', JSON.stringify(adminList));
+    }
+}
+
+// Kiểm tra admin
+function isAdmin() {
+    return currentUser && adminList.includes(currentUser.email);
+}
 
 // Danh sách bài hát - FULL SƠN TÙNG M-TP + ALAN WALKER ("Fire!") + NEFFEX & TheFatRat
 const songs = [
-    // NEFFEX
     { title: "Fight Back", artist: "NEFFEX", id: "CYDP_8UTAus" },
     { title: "Best of Me", artist: "NEFFEX", id: "0Wa_CR0H8g4" },
     { title: "Rumors", artist: "NEFFEX", id: "LT_XSMrqS8M" },
@@ -29,7 +44,6 @@ const songs = [
     { title: "My Way", artist: "NEFFEX", id: "a6j5lbt6OLQ" },
     { title: "Statement", artist: "NEFFEX", id: "WeiM_vffWAw" },
 
-    // TheFatRat
     { title: "Unity", artist: "TheFatRat", id: "n4tK7LYFxI0" },
     { title: "Monody", artist: "TheFatRat", id: "B7xai5u_tnk" },
     { title: "Fly Away", artist: "TheFatRat", id: "cMg8KaMdDYo" },
@@ -42,7 +56,6 @@ const songs = [
     { title: "Warbringer", artist: "TheFatRat", id: "jiT2Mak9AzI" },
     { title: "Hiding in the Blue", artist: "TheFatRat", id: "lW0DIsC7n1U" },
 
-    // ALAN WALKER FULL HOT (có "Fire!")
     { title: "Faded", artist: "Alan Walker", id: "60ItHLz5WEA" },
     { title: "Alone", artist: "Alan Walker", id: "1-xGerv5FOk" },
     { title: "Sing Me to Sleep", artist: "Alan Walker", id: "TCBBBw1j4eA" },
@@ -53,7 +66,6 @@ const songs = [
     { title: "On My Way", artist: "Alan Walker ft. Sabrina Carpenter & Farruko", id: "p-9j5w0Z3M" },
     { title: "Fire!", artist: "Alan Walker ft. YUQI & JVKE", id: "rO1ANdXvdTg" },
 
-    // SƠN TÙNG M-TP FULL HIT
     { title: "Hãy Trao Cho Anh", artist: "Sơn Tùng M-TP ft. Snoop Dogg", id: "knW7-x7Y7RE" },
     { title: "Muộn Rồi Mà Sao Còn", artist: "Sơn Tùng M-TP", id: "xypzmu5mMPY" },
     { title: "Chạy Ngay Đi", artist: "Sơn Tùng M-TP", id: "32sYGCOYJUM" },
@@ -118,9 +130,9 @@ function submitBug() {
 function showInfo() {
     openModal(`
         <h2>ℹ️ THÔNG TIN & UPDATE</h2>
-        <p><strong>Phiên bản 2.2 (08/01/2026)</p>
+        <p><strong>Phiên bản 2.2 (09/01/2026)</p>
         <p>- Thêm lệnh admin nhanh: /stop, /skip (miễn phí), /home, /restart<br>
-        - Thêm nút ADD ADMIN trong panel<br>
+        - Add admin lưu vĩnh viễn + nút ADD ADMIN trong panel<br>
         - Bảo vệ Owner không bị ban/kick<br>
         - Giữ full Sơn Tùng + Alan Walker "Fire!"</p>
         <p>Liên hệ hỗ trợ: Herogoodboymc2024@gmail.com</p>
@@ -294,7 +306,6 @@ function finalDeleteAccount() {
     speak("Tài khoản đã bị xóa hoàn toàn. Cảm ơn bạn đã chơi trò chơi của Nguyễn Chí Dự!");
 }
 
-// ADMIN PANEL + ADD ADMIN + LỆNH NHANH
 function showAdminLogin() {
     openModal(`
         <h2>🔧 ADMIN PANEL</h2>
@@ -347,7 +358,7 @@ function showAdminPanel() {
 function addNewAdmin() {
     const newAdmin = document.getElementById('newAdminID').value.trim();
     if (!newAdmin) {
-        alert("Vui lòng nhập Gmail hoặc ID!");
+        alert("Vui lòng nhập Gmail hoặc ID người dùng!");
         return;
     }
     if (adminList.includes(newAdmin)) {
@@ -355,8 +366,10 @@ function addNewAdmin() {
         return;
     }
     adminList.push(newAdmin);
-    alert(`Đã cấp quyền ADMIN cho ${newAdmin}!`);
+    localStorage.setItem('gameAdminList', JSON.stringify(adminList));
+    alert(`Đã cấp quyền ADMIN cho ${newAdmin} thành công!!`);
     showNotification(`✅ Đã add admin mới: ${newAdmin}`);
+    document.getElementById('newAdminID').value = '';
     showAdminPanel();
 }
 
@@ -364,67 +377,6 @@ function toggleCommands() {
     commandsEnabled = !commandsEnabled;
     showNotification(commandsEnabled ? "✅ Đã BẬT lệnh command!" : "❌ Đã TẮT lệnh command!");
     showAdminPanel();
-}
-
-// Kiểm tra admin
-function isAdmin() {
-    return currentUser && adminList.includes(currentUser.email);
-}
-
-// Xử lý lệnh admin
-function handleAdminCommand(cmd) {
-    const parts = cmd.slice(1).split(" ");
-    const command = parts[0].toLowerCase();
-    const arg = parts.slice(1).join(" ");
-
-    // Bảo vệ Owner
-    if (currentUser.email === "herogoodboymc@gmail.com") {
-        if (command === "ban" || command === "kick") {
-            showNotification("❌ Không thể dùng lệnh này với Owner!");
-            return;
-        }
-    }
-
-    if (command === "stop") {
-        backToHome();
-        showNotification("🛑 Admin dừng game!");
-    } else if (command === "skip") {
-        loadNewSong();
-        showNotification("⏩ Admin skip miễn phí!");
-    } else if (command === "home") {
-        backToHome();
-        showNotification("🏠 Admin về trang chủ!");
-    } else if (command === "restart") {
-        startGame();
-        showNotification("🔃 Admin restart game!");
-    } else if (command === "addpoint") {
-        const points = parseInt(arg);
-        if (!isNaN(points)) {
-            score += points;
-            document.getElementById('score').textContent = score;
-            showNotification(`✅ Admin cộng +${points} điểm!`);
-        } else {
-            showNotification("❌ Sai cú pháp! /addpoint [số điểm]");
-        }
-    } else if (command === "ban") {
-        if (arg) {
-            showNotification(`🔨 Đã BAN người dùng ${arg}!`);
-        } else {
-            showNotification("❌ Sai cú pháp! /ban [ID]");
-        }
-    } else if (command === "kick") {
-        if (arg) {
-            showNotification(`👢 Đã KICK người dùng ${arg}!`);
-            alert("Bạn bị KICK bởi Admin! Website sẽ đóng.");
-            setTimeout(() => location.reload(), 1000);
-        } else {
-            showNotification("❌ Sai cú pháp! /kick [ID]");
-        }
-    } else if (command === "help") {
-        showNotification("Lệnh: /stop, /skip, /home, /restart, /addpoint, /ban, /kick, /help");
-    } else {
-        showNotification("❌ Lệnh không tồn tại! Gõ /help");
-    }
 }
 
 const tag = document.createElement('script');
@@ -497,7 +449,6 @@ function submitAnswer() {
         return;
     }
 
-    // Đoán bài hát
     const normalizedInput = input.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const normalizedCorrect = currentSong.title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
@@ -523,6 +474,61 @@ function submitAnswer() {
     }
 
     loadNewSong();
+}
+
+function handleAdminCommand(cmd) {
+    const parts = cmd.slice(1).split(" ");
+    const command = parts[0].toLowerCase();
+    const arg = parts.slice(1).join(" ");
+
+    // Bảo vệ Owner
+    if (currentUser.email === "herogoodboymc@gmail.com") {
+        if (command === "ban" || command === "kick") {
+            showNotification("❌ Không thể dùng lệnh này với Owner!");
+            return;
+        }
+    }
+
+    if (command === "stop") {
+        backToHome();
+        showNotification("🛑 Admin dừng game!");
+    } else if (command === "skip") {
+        loadNewSong();
+        showNotification("⏩ Admin skip miễn phí!");
+    } else if (command === "home") {
+        backToHome();
+        showNotification("🏠 Admin về trang chủ!");
+    } else if (command === "restart") {
+        startGame();
+        showNotification("🔃 Admin restart game!");
+    } else if (command === "addpoint") {
+        const points = parseInt(arg);
+        if (!isNaN(points)) {
+            score += points;
+            document.getElementById('score').textContent = score;
+            showNotification(`✅ Admin cộng +${points} điểm!`);
+        } else {
+            showNotification("❌ Sai cú pháp! /addpoint [số điểm]");
+        }
+    } else if (command === "ban") {
+        if (arg) {
+            showNotification(`🔨 Đã BAN người dùng ${arg}!`);
+        } else {
+            showNotification("❌ Sai cú pháp! /ban [ID]");
+        }
+    } else if (command === "kick") {
+        if (arg) {
+            showNotification(`👢 Đã KICK người dùng ${arg}!`);
+            alert("Bạn bị KICK bởi Admin!");
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification("❌ Sai cú pháp! /kick [ID]");
+        }
+    } else if (command === "help") {
+        showNotification("Lệnh: /stop, /skip, /home, /restart, /addpoint, /ban, /kick, /help");
+    } else {
+        showNotification("❌ Lệnh không tồn tại! Gõ /help");
+    }
 }
 
 function surrenderConfirm() {
@@ -610,6 +616,7 @@ function addPlayerDivs() {
 
 window.onload = () => {
     addPlayerDivs();
+    loadAdminList(); // Load admin list
 
     if (!navigator.onLine) {
         alert("Bạn cần kết nối internet để chơi game!");
