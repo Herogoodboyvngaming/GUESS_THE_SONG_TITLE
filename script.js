@@ -130,10 +130,10 @@ function submitBug() {
 function showInfo() {
     openModal(`
         <h2>ℹ️ THÔNG TIN & UPDATE</h2>
-        <p><strong>Phiên bản 2.9 (09/01/2026)</p>
-        <p>- Đã đăng nhập Admin Panel → reload trang vào thẳng panel luôn (khỏi nhập lại TK/MK)<br>
-        - Chỉ giữ lệnh admin quan trọng: /addpoint, /removepoint, /ban<br>
-        - Lệnh chỉ dùng kín đáo trong Admin Panel</p>
+        <p><strong>Phiên bản 2.9.1 (09/01/2026)</p>
+        <p>- Fix reload vào thẳng Admin Panel nếu đã login session<br>
+        - Bấm GỬI LỆNH khi chưa nhập → hiện "❌ Bạn chưa nhập lệnh!"<br>
+        - Chỉ giữ lệnh admin quan trọng: /addpoint, /removepoint, /ban</p>
         <p>Liên hệ hỗ trợ: Herogoodboymc2024@gmail.com</p>
     `);
 }
@@ -145,7 +145,6 @@ function openModal(content) {
 
 function closeModal() {
     document.getElementById('modal').style.display = 'none';
-    // Xóa trạng thái admin session khi đóng panel
     localStorage.removeItem('adminSessionActive');
 }
 
@@ -265,7 +264,7 @@ function startGame() {
 function logout() {
     if (confirm("Bạn có chắc muốn đăng xuất không? Điểm số vẫn được lưu lại nhé!")) {
         localStorage.removeItem('lastLoggedInUser');
-        localStorage.removeItem('adminSessionActive'); // Xóa session admin
+        localStorage.removeItem('adminSessionActive');
         currentUser = null;
         showScreen('mainMenu');
         showNotification("✅ Đã đăng xuất thành công!");
@@ -314,9 +313,9 @@ function finalDeleteAccount() {
     speak("Tài khoản đã bị xóa hoàn toàn. Cảm ơn bạn đã chơi trò chơi của Nguyễn Chí Dự!");
 }
 
+// FIX RELOAD VÀO THẲNG PANEL
 function showAdminLogin() {
-    // Kiểm tra nếu đã có session admin → vào thẳng panel
-    if (localStorage.getItem('adminSessionActive') === 'true' && isAdmin()) {
+    if (localStorage.getItem('adminSessionActive') === 'true' && isAdmin() && currentUser) {
         showAdminPanel();
         return;
     }
@@ -335,7 +334,7 @@ function loginAdmin() {
     const pass = document.getElementById('adminPass').value;
 
     if (user === ADMIN_USERNAME && pass === ADMIN_PASSWORD) {
-        localStorage.setItem('adminSessionActive', 'true'); // Lưu session admin
+        localStorage.setItem('adminSessionActive', 'true');
         closeModal();
         showAdminPanel();
     } else {
@@ -343,7 +342,6 @@ function loginAdmin() {
     }
 }
 
-// ADMIN PANEL - CHỈ 3 LỆNH QUAN TRỌNG
 function showAdminPanel() {
     openModal(`
         <h2>🔧 ADMIN PANEL - MODERATOR</h2>
@@ -372,7 +370,6 @@ function showAdminPanel() {
     `);
 }
 
-// Đăng xuất session admin
 function logoutAdminSession() {
     localStorage.removeItem('adminSessionActive');
     closeModal();
@@ -401,6 +398,21 @@ function toggleCommands() {
     commandsEnabled = !commandsEnabled;
     showNotification(commandsEnabled ? "✅ Đã BẬT lệnh command!" : "❌ Đã TẮT lệnh command!");
     showAdminPanel();
+}
+
+// FIX BẤM GỬI KHI CHƯA NHẬP
+function executeAdminCommand() {
+    const input = document.getElementById('adminCommandInput').value.trim();
+    if (!input) {
+        showNotification("❌ Bạn chưa nhập lệnh!");
+        return;
+    }
+    if (input.startsWith("/") && commandsEnabled && isAdmin()) {
+        handleAdminCommand(input);
+        document.getElementById('adminCommandInput').value = '';
+    } else {
+        showNotification("❌ Lệnh không hợp lệ hoặc lệnh đang tắt!");
+    }
 }
 
 const tag = document.createElement('script');
@@ -464,7 +476,6 @@ function playClip() {
     }
 }
 
-// submitAnswer - CHỈ ĐOÁN BÀI HÁT BÌNH THƯỜNG
 function submitAnswer() {
     const input = document.getElementById('answerInput').value.trim();
 
@@ -495,7 +506,6 @@ function submitAnswer() {
     loadNewSong();
 }
 
-// Lệnh admin - CHỈ 3 LỆNH TRONG PANEL
 function handleAdminCommand(cmd) {
     const parts = cmd.slice(1).split(" ");
     const command = parts[0].toLowerCase();
@@ -639,7 +649,7 @@ window.onload = () => {
             updateProfile();
             speak(`Chào mừng ${user.name} quay lại nhé!`);
 
-            // TỰ ĐỘNG VÀO ADMIN PANEL NẾU ĐÃ CÓ SESSION
+            // TỰ ĐỘNG VÀO ADMIN PANEL NẾU CÓ SESSION
             if (localStorage.getItem('adminSessionActive') === 'true' && isAdmin()) {
                 showAdminPanel();
             }
