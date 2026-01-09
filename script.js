@@ -9,9 +9,10 @@ let loginAttempts = 0;
 let isOnline = navigator.onLine;
 let commandsEnabled = true;
 
-// Admin credentials + list admin (lưu vĩnh viễn)
+// Admin credentials (1 panel duy nhất)
 const ADMIN_USERNAME = "herogoodboyvngaming";
 const ADMIN_PASSWORD = "Nguyen2009";
+
 let adminList = [];
 
 // Load adminList từ localStorage
@@ -30,7 +31,7 @@ function isAdmin() {
     return currentUser && adminList.includes(currentUser.email);
 }
 
-// Danh sách bài hát - FULL SƠN TÙNG M-TP + ALAN WALKER ("Fire!") + NEFFEX & TheFatRat
+// Danh sách bài hát FULL
 const songs = [
     { title: "Fight Back", artist: "NEFFEX", id: "CYDP_8UTAus" },
     { title: "Best of Me", artist: "NEFFEX", id: "0Wa_CR0H8g4" },
@@ -130,10 +131,10 @@ function submitBug() {
 function showInfo() {
     openModal(`
         <h2>ℹ️ THÔNG TIN & UPDATE</h2>
-        <p><strong>Phiên bản 2.9.2 (09/01/2026)</p>
-        <p>- Fix lệnh /addpoint và /removepoint hoạt động mượt (cộng/trừ điểm ngay)<br>
-        - Xóa tự động vào Admin Panel khi reload (phải nhập TK/MK mỗi lần để an toàn)<br>
-        - Bấm GỬI LỆNH khi chưa nhập → "❌ Bạn chưa nhập lệnh!"</p>
+        <p><strong>Phiên bản 3.4 (09/01/2026)</p>
+        <p>- Nhạc nền YouTube chạy ngầm ẩn hoàn toàn (không hiện player, thumbnail)<br>
+        - Admin Panel siêu gọn: 1. Add Admin + 2. Gửi lệnh<br>
+        - Lệnh đầy đủ: /addpoint, /removepoint, /set, /clear, /ban, /help</p>
         <p>Liên hệ hỗ trợ: Herogoodboymc2024@gmail.com</p>
     `);
 }
@@ -334,28 +335,27 @@ function loginAdmin() {
 
 function showAdminPanel() {
     openModal(`
-        <h2>🔧 ADMIN PANEL - MODERATOR</h2>
+        <h2>🔧 ADMIN PANEL</h2>
         <p>Chào mừng Admin <strong>${currentUser.name || currentUser.email}</strong>!</p>
-        <p>Lệnh slash command hiện tại: <strong>${commandsEnabled ? "BẬT" : "TẮT"}</strong></p>
-        <button class="btn ${commandsEnabled ? 'warning' : 'primary'}" onclick="toggleCommands()">
-            ${commandsEnabled ? 'TẮT' : 'BẬT'} LỆNH COMMAND
-        </button>
         <hr>
-        <h3>Thêm Admin mới</h3>
+        <h3>1. ADD ADMIN MỚI</h3>
         <input type="text" id="newAdminID" placeholder="Nhập Gmail hoặc ID người dùng" style="width:100%; padding:12px; border-radius:50px; border:none; margin-bottom:10px;">
         <button class="btn primary" onclick="addNewAdmin()">ADD ADMIN</button>
         <hr>
-        <h3>GỬI LỆNH ADMIN (chỉ trong panel này)</h3>
-        <input type="text" id="adminCommandInput" placeholder="Gõ lệnh (vd: /addpoint 100, /removepoint 50, /ban USER#1234)" style="width:100%; padding:12px; border-radius:50px; border:none; margin-bottom:10px;">
+        <h3>2. GỬI LỆNH ADMIN</h3>
+        <input type="text" id="adminCommandInput" placeholder="Gõ lệnh (vd: /addpoint 100, /set 999, /clear...)" style="width:100%; padding:12px; border-radius:50px; border:none; margin-bottom:10px;">
         <button class="btn danger" onclick="executeAdminCommand()">GỬI LỆNH</button>
         <hr>
-        <p><strong>Lệnh admin hiện có:</strong></p>
+        <p><strong>Lệnh hiện có:</strong></p>
         <ul style="text-align:left;">
-            <li>/addpoint [số] → cộng điểm cho bạn</li>
-            <li>/removepoint [số] → trừ điểm của bạn</li>
+            <li>/addpoint [số] → cộng điểm</li>
+            <li>/removepoint [số] → trừ điểm</li>
+            <li>/set [số] → set điểm chính xác</li>
+            <li>/clear → xóa sạch điểm</li>
             <li>/ban [ID] → ban người dùng</li>
             <li>/help → xem lệnh</li>
         </ul>
+        <button class="btn secondary" onclick="closeModal()">ĐÓNG PANEL</button>
     `);
 }
 
@@ -377,23 +377,91 @@ function addNewAdmin() {
     showAdminPanel();
 }
 
-function toggleCommands() {
-    commandsEnabled = !commandsEnabled;
-    showNotification(commandsEnabled ? "✅ Đã BẬT lệnh command!" : "❌ Đã TẮT lệnh command!");
-    showAdminPanel();
-}
-
 function executeAdminCommand() {
     const input = document.getElementById('adminCommandInput').value.trim();
     if (!input) {
         showNotification("❌ Bạn chưa nhập lệnh!");
         return;
     }
-    if (input.startsWith("/") && commandsEnabled && isAdmin()) {
+    if (input.startsWith("/") && commandsEnabled) {
         handleAdminCommand(input);
         document.getElementById('adminCommandInput').value = '';
     } else {
-        showNotification("❌ Lệnh không hợp lệ hoặc lệnh đang tắt!");
+        showNotification("❌ Lệnh không hợp lệ!");
+    }
+}
+
+function handleAdminCommand(cmd) {
+    const parts = cmd.slice(1).split(" ");
+    const command = parts[0].toLowerCase();
+    const arg = parts.slice(1).join(" ");
+
+    if (currentUser.email === "herogoodboymc@gmail.com" && command === "ban") {
+        showNotification("❌ Không thể ban Owner!");
+        return;
+    }
+
+    if (command === "addpoint") {
+        const points = parseInt(arg);
+        if (!isNaN(points) && points > 0) {
+            score += points;
+            document.getElementById('score').textContent = score;
+            if (currentUser) {
+                const data = JSON.parse(localStorage.getItem(currentUser.email));
+                data.score = score;
+                localStorage.setItem(currentUser.email, JSON.stringify(data));
+            }
+            showNotification(`✅ Admin cộng +${points} điểm!`);
+        } else {
+            showNotification("❌ Sai cú pháp! /addpoint [số điểm > 0]");
+        }
+    } else if (command === "removepoint") {
+        const points = parseInt(arg);
+        if (!isNaN(points) && points > 0) {
+            score = Math.max(0, score - points);
+            document.getElementById('score').textContent = score;
+            if (currentUser) {
+                const data = JSON.parse(localStorage.getItem(currentUser.email));
+                data.score = score;
+                localStorage.setItem(currentUser.email, JSON.stringify(data));
+            }
+            showNotification(`❌ Admin trừ -${points} điểm!`);
+        } else {
+            showNotification("❌ Sai cú pháp! /removepoint [số điểm > 0]");
+        }
+    } else if (command === "set") {
+        const points = parseInt(arg);
+        if (!isNaN(points) && points >= 0) {
+            score = points;
+            document.getElementById('score').textContent = score;
+            if (currentUser) {
+                const data = JSON.parse(localStorage.getItem(currentUser.email));
+                data.score = score;
+                localStorage.setItem(currentUser.email, JSON.stringify(data));
+            }
+            showNotification(`✅ Admin set điểm thành ${points}!`);
+        } else {
+            showNotification("❌ Sai cú pháp! /set [số điểm ≥ 0]");
+        }
+    } else if (command === "clear") {
+        score = 0;
+        document.getElementById('score').textContent = score;
+        if (currentUser) {
+            const data = JSON.parse(localStorage.getItem(currentUser.email));
+            data.score = 0;
+            localStorage.setItem(currentUser.email, JSON.stringify(data));
+        }
+        showNotification("🗑️ Admin xóa sạch điểm về 0!");
+    } else if (command === "ban") {
+        if (arg) {
+            showNotification(`🔨 Đã BAN người dùng ${arg}!`);
+        } else {
+            showNotification("❌ Sai cú pháp! /ban [ID]");
+        }
+    } else if (command === "help") {
+        showNotification("Lệnh admin: /addpoint [số], /removepoint [số], /set [số], /clear, /ban [ID], /help");
+    } else {
+        showNotification("❌ Lệnh không tồn tại! Gõ /help");
     }
 }
 
@@ -401,11 +469,41 @@ const tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
 document.head.appendChild(tag);
 
+// NHẠC NỀN ẨN HOÀN TOÀN
 function onYouTubeIframeAPIReady() {
     bgMusicPlayer = new YT.Player('bgMusicPlayer', {
-        height: '0', width: '0', videoId: 'jfKfPfyJRdk',
-        playerVars: { autoplay: 1, loop: 1, playlist: 'jfKfPfyJRdk', controls: 0 },
-        events: { onReady: (e) => e.target.setVolume(20) }
+        height: '0',
+        width: '0',
+        videoId: 'jfKfPfyJRdk',
+        playerVars: {
+            autoplay: 1,
+            loop: 1,
+            playlist: 'jfKfPfyJRdk',
+            controls: 0,
+            disablekb: 1,
+            fs: 0,
+            iv_load_policy: 3,
+            modestbranding: 1,
+            rel: 0,
+            showinfo: 0,
+            playsinline: 1
+        },
+        events: {
+            onReady: (e) => {
+                e.target.setVolume(20);
+                // ẨN HOÀN TOÀN PLAYER NHẠC NỀN
+                const iframe = document.querySelector('#bgMusicPlayer iframe');
+                if (iframe) {
+                    iframe.style.position = 'absolute';
+                    iframe.style.left = '-100px';
+                    iframe.style.top = '-100px';
+                    iframe.style.opacity = '0';
+                    iframe.style.pointerEvents = 'none';
+                    iframe.style.width = '0px';
+                    iframe.style.height = '0px';
+                }
+            }
+        }
     });
     loadNewSong();
 }
@@ -440,7 +538,6 @@ function loadNewSong() {
                     iframe.style.opacity = '0';
                     iframe.style.pointerEvents = 'none';
                 }
-                console.log("Player sẵn sàng - chỉ audio: " + currentSong.title);
             },
             onError: () => loadNewSong()
         }
@@ -486,57 +583,6 @@ function submitAnswer() {
     }
 
     loadNewSong();
-}
-
-function handleAdminCommand(cmd) {
-    const parts = cmd.slice(1).split(" ");
-    const command = parts[0].toLowerCase();
-    const arg = parts.slice(1).join(" ");
-
-    if (currentUser.email === "herogoodboymc@gmail.com" && command === "ban") {
-        showNotification("❌ Không thể ban Owner!");
-        return;
-    }
-
-    if (command === "addpoint") {
-        const points = parseInt(arg);
-        if (!isNaN(points) && points > 0) {
-            score += points;
-            document.getElementById('score').textContent = score;
-            if (currentUser) {
-                const data = JSON.parse(localStorage.getItem(currentUser.email));
-                data.score = score;
-                localStorage.setItem(currentUser.email, JSON.stringify(data));
-            }
-            showNotification(`✅ Admin cộng +${points} điểm!`);
-        } else {
-            showNotification("❌ Sai cú pháp! /addpoint [số điểm > 0]");
-        }
-    } else if (command === "removepoint") {
-        const points = parseInt(arg);
-        if (!isNaN(points) && points > 0) {
-            score = Math.max(0, score - points);
-            document.getElementById('score').textContent = score;
-            if (currentUser) {
-                const data = JSON.parse(localStorage.getItem(currentUser.email));
-                data.score = score;
-                localStorage.setItem(currentUser.email, JSON.stringify(data));
-            }
-            showNotification(`❌ Admin trừ -${points} điểm!`);
-        } else {
-            showNotification("❌ Sai cú pháp! /removepoint [số điểm > 0]");
-        }
-    } else if (command === "ban") {
-        if (arg) {
-            showNotification(`🔨 Đã BAN người dùng ${arg}!`);
-        } else {
-            showNotification("❌ Sai cú pháp! /ban [ID]");
-        }
-    } else if (command === "help") {
-        showNotification("Lệnh admin: /addpoint [số], /removepoint [số], /ban [ID], /help");
-    } else {
-        showNotification("❌ Lệnh không tồn tại! Gõ /help");
-    }
 }
 
 function surrenderConfirm() {
