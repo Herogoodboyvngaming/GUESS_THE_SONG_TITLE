@@ -8,6 +8,8 @@ let currentSong = null;
 let loginAttempts = 0;
 let isOnline = navigator.onLine;
 let commandsEnabled = true;
+let isMuted = false;
+let muteTimeout = null;
 
 // Admin credentials + list admin (lưu vĩnh viễn)
 const ADMIN_USERNAME = "herogoodboyvngaming";
@@ -130,11 +132,11 @@ function submitBug() {
 function showInfo() {
     openModal(`
         <h2>ℹ️ THÔNG TIN & UPDATE</h2>
-        <p><strong>Phiên bản 2.2 (09/01/2026)</p>
-        <p>- Thêm lệnh admin nhanh: /stop, /skip (miễn phí), /home, /restart<br>
+        <p><strong>Phiên bản 2.3 (09/01/2026)</p>
+        <p>- Thêm lệnh admin mới: /play, /play again, /mute [giây], /unmute<br>
+        - Thêm lệnh nhanh: /stop, /skip (miễn phí), /home, /restart<br>
         - Add admin lưu vĩnh viễn + nút ADD ADMIN trong panel<br>
-        - Bảo vệ Owner không bị ban/kick<br>
-        - Giữ full Sơn Tùng + Alan Walker "Fire!"</p>
+        - Bảo vệ Owner không bị ban/kick</p>
         <p>Liên hệ hỗ trợ: Herogoodboymc2024@gmail.com</p>
     `);
 }
@@ -341,16 +343,13 @@ function showAdminPanel() {
         <input type="text" id="newAdminID" placeholder="Nhập Gmail hoặc ID người dùng" style="width:100%; padding:12px; border-radius:50px; border:none; margin-bottom:10px;">
         <button class="btn primary" onclick="addNewAdmin()">ADD ADMIN</button>
         <hr>
-        <p><strong>Lệnh nhanh (gõ vào ô đoán bài hát):</strong></p>
+        <p><strong>Lệnh admin mới (gõ vào ô đoán bài hát):</strong></p>
         <ul style="text-align:left;">
-            <li>/stop → dừng game</li>
-            <li>/skip → skip miễn phí</li>
-            <li>/home → về trang chủ</li>
-            <li>/restart → chơi lại</li>
-            <li>/addpoint [số] → cộng điểm</li>
-            <li>/ban [ID] → ban</li>
-            <li>/kick [ID] → kick</li>
-            <li>/help → xem lệnh</li>
+            <li>/play → chơi nhạc ngay</li>
+            <li>/play again → chơi lại bài hiện tại</li>
+            <li>/mute [giây] → tắt tiếng nhạc</li>
+            <li>/unmute → bật lại tiếng</li>
+            <li>/stop, /skip, /home, /restart, /addpoint, /ban, /kick, /help</li>
         </ul>
     `);
 }
@@ -429,13 +428,47 @@ function loadNewSong() {
     });
 }
 
+// Play nhạc (admin dùng /play)
 function playClip() {
     if (player && typeof player.playVideo === 'function') {
-        player.playVideo();
-        speak("Đoạn nhạc đang phát! Lắng nghe kỹ và đoán tên bài hát nào! Chúc may mắn nhé!");
+        if (!isMuted) {
+            player.setVolume(100);
+            player.playVideo();
+            speak("Đoạn nhạc đang phát! Lắng nghe kỹ và đoán tên bài hát nào! Chúc may mắn nhé!");
+        } else {
+            showNotification("🔇 Nhạc đang bị mute bởi admin!");
+        }
     } else {
         showNotification("⏳ Đang tải nhạc, bấm lại sau vài giây nhé!");
         setTimeout(playClip, 1500);
+    }
+}
+
+// Play lại bài hiện tại (admin dùng /play again)
+function playAgain() {
+    if (player && typeof player.seekTo === 'function') {
+        player.seekTo(player.getCurrentTime() - (player.getDuration() - player.getCurrentTime())); // quay lại đầu
+        player.playVideo();
+        showNotification("🔁 Admin chơi lại bài hát!");
+    }
+}
+
+// Mute/Unmute (admin dùng)
+function muteMusic(seconds) {
+    if (player) {
+        player.setVolume(0);
+        isMuted = true;
+        showNotification(`🔇 Admin mute nhạc trong ${seconds} giây!`);
+        if (muteTimeout) clearTimeout(muteTimeout);
+        muteTimeout = setTimeout(unmuteMusic, seconds * 1000);
+    }
+}
+
+function unmuteMusic() {
+    if (player) {
+        player.setVolume(100);
+        isMuted = false;
+        showNotification("🔊 Admin unmute nhạc!");
     }
 }
 
@@ -449,6 +482,7 @@ function submitAnswer() {
         return;
     }
 
+    // Đoán bài hát
     const normalizedInput = input.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const normalizedCorrect = currentSong.title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
@@ -489,7 +523,16 @@ function handleAdminCommand(cmd) {
         }
     }
 
-    if (command === "stop") {
+    if (command === "play") {
+        playClip();
+    } else if (command === "play again") {
+        playAgain();
+    } else if (command === "mute") {
+        const seconds = parseInt(arg) || 30;
+        muteMusic(seconds);
+    } else if (command === "unmute") {
+        unmuteMusic();
+    } else if (command === "stop") {
         backToHome();
         showNotification("🛑 Admin dừng game!");
     } else if (command === "skip") {
@@ -525,7 +568,7 @@ function handleAdminCommand(cmd) {
             showNotification("❌ Sai cú pháp! /kick [ID]");
         }
     } else if (command === "help") {
-        showNotification("Lệnh: /stop, /skip, /home, /restart, /addpoint, /ban, /kick, /help");
+        showNotification("Lệnh admin: /play, /play again, /mute [giây], /unmute, /stop, /skip, /home, /restart, /addpoint, /ban, /kick, /help");
     } else {
         showNotification("❌ Lệnh không tồn tại! Gõ /help");
     }
@@ -616,7 +659,7 @@ function addPlayerDivs() {
 
 window.onload = () => {
     addPlayerDivs();
-    loadAdminList(); // Load admin list
+    loadAdminList();
 
     if (!navigator.onLine) {
         alert("Bạn cần kết nối internet để chơi game!");
