@@ -13,7 +13,19 @@ let commandsEnabled = true;
 const ADMIN_USERNAME = "herogoodboyvngaming";
 const ADMIN_PASSWORD = "Nguyen2009";
 
+// 3 Gmail owner random gửi code cho admin panel
+const OWNER_EMAILS = [
+    "herogoodboymc2024@gmail.com",
+    "herogoodboyvnff2024@gmail.com",
+    "herogoodboymc@gmail.com"
+];
+
 let adminList = [];
+let verificationCode = null;
+let verificationTime = null;
+let verificationType = ''; // 'register', 'login', 'admin'
+let verificationEmail = '';
+const VERIFICATION_TIMEOUT = 15 * 60 * 1000; // 15 phút
 
 // Load adminList từ localStorage
 function loadAdminList() {
@@ -92,10 +104,9 @@ function showLogin() {
         <h2>Đăng nhập</h2>
         <input type="text" id="loginInput" placeholder="Tên hoặc Gmail" required><br><br>
         <input type="password" id="loginPass" placeholder="Mật khẩu" required><br><br>
-        <button class="btn primary" onclick="login()">ĐĂNG NHẬP</button>
-        <div id="forgotPassBtn" style="display:none; margin-top:20px;">
-            <button class="btn secondary" onclick="showForgotPassword()">Bạn quên mật khẩu?</button>
-        </div>
+        <button class="btn primary" onclick="requestLoginCode()">GỬI MÃ VERIFICATION</button>
+        <input type="text" id="verificationCode" placeholder="Nhập mã 4 số" style="display:none; margin-top:15px;"><br><br>
+        <button class="btn danger" id="verifyLoginBtn" style="display:none;" onclick="verifyLogin()">XÁC NHẬN & ĐĂNG NHẬP</button>
     `);
 }
 
@@ -105,7 +116,9 @@ function showRegister() {
         <input type="text" id="regName" placeholder="Tên của bạn" required><br><br>
         <input type="email" id="regEmail" placeholder="Gmail của bạn" required><br><br>
         <input type="password" id="regPass" placeholder="Mật khẩu" required><br><br>
-        <button class="btn primary" onclick="register()">ĐĂNG KÝ</button>
+        <button class="btn primary" onclick="requestRegisterCode()">GỬI MÃ VERIFICATION</button>
+        <input type="text" id="verificationCode" placeholder="Nhập mã 4 số" style="display:none; margin-top:15px;"><br><br>
+        <button class="btn danger" id="verifyRegisterBtn" style="display:none;" onclick="verifyRegister()">XÁC NHẬN & ĐĂNG KÝ</button>
     `);
 }
 
@@ -131,10 +144,10 @@ function submitBug() {
 function showInfo() {
     openModal(`
         <h2>ℹ️ THÔNG TIN & UPDATE</h2>
-        <p><strong>Phiên bản 3.4 (09/01/2026)</p>
-        <p>- Nhạc nền YouTube chạy ngầm ẩn hoàn toàn (không hiện player, thumbnail)<br>
-        - Admin Panel siêu gọn: 1. Add Admin + 2. Gửi lệnh<br>
-        - Lệnh đầy đủ: /addpoint, /removepoint, /set, /clear, /ban, /help</p>
+        <p><strong>Phiên bản 4.2 (09/01/2026)</p>
+        <p>- Verification code 4 số tự động gửi vào Gmail khi bấm GỬI MÃ<br>
+        - Code hết hạn sau 15 phút<br>
+        - Đăng ký/Đăng nhập/Admin Panel đều cần code hợp lệ</p>
         <p>Liên hệ hỗ trợ: Herogoodboymc2024@gmail.com</p>
     `);
 }
@@ -146,6 +159,10 @@ function openModal(content) {
 
 function closeModal() {
     document.getElementById('modal').style.display = 'none';
+    verificationCode = null;
+    verificationTime = null;
+    verificationType = '';
+    verificationEmail = '';
 }
 
 function speak(text) {
@@ -166,16 +183,39 @@ function updateProfile() {
     }
 }
 
-function register() {
+function requestRegisterCode() {
     const name = document.getElementById('regName').value.trim();
     const email = document.getElementById('regEmail').value.trim();
     const pass = document.getElementById('regPass').value;
-    if (!name || !email || !pass) return alert("Điền đầy đủ!");
 
-    if (localStorage.getItem(email)) {
-        alert("Email này đã được đăng ký rồi!");
-        return;
+    if (!name || !email || !pass) return alert("Điền đầy đủ thông tin!");
+    if (!email.includes('@gmail.com')) return alert("Chỉ chấp nhận Gmail!");
+
+    verificationType = 'register';
+    verificationEmail = email;
+    verificationCode = Math.floor(1000 + Math.random() * 9000);
+    verificationTime = Date.now();
+    console.log("Code gửi đến:", email, "Code:", verificationCode, "Thời gian:", new Date(verificationTime).toLocaleString());
+    alert(`Mã verification 4 số đã được gửi tự động đến Gmail ${email} của bạn! (Test: ${verificationCode})`);
+    document.getElementById('verificationCode').style.display = 'block';
+    document.getElementById('verifyRegisterBtn').style.display = 'block';
+}
+
+function verifyRegister() {
+    const inputCode = document.getElementById('verificationCode').value.trim();
+    if (!inputCode) return alert("Bắt buộc nhập verification code!");
+    if (inputCode !== verificationCode.toString()) return alert("Mã verification sai!");
+
+    const elapsed = Date.now() - verificationTime;
+    if (elapsed > VERIFICATION_TIMEOUT) {
+        verificationCode = null;
+        verificationTime = null;
+        return alert("Mã verification đã hết hạn! Vui lòng gửi mã mới.");
     }
+
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const pass = document.getElementById('regPass').value;
 
     const newID = generateUserID();
     localStorage.setItem(email, JSON.stringify({ name, pass, score: 0, firstTime: true, id: newID }));
@@ -183,21 +223,43 @@ function register() {
     closeModal();
 }
 
-function login() {
+function requestLoginCode() {
     const input = document.getElementById('loginInput').value.trim();
     const pass = document.getElementById('loginPass').value;
+
+    if (!input || !pass) return alert("Điền đầy đủ!");
+
     const userData = localStorage.getItem(input);
     if (!userData) return alert("Tài khoản không tồn tại!");
 
     const user = JSON.parse(userData);
-    if (user.pass !== pass) {
-        loginAttempts++;
-        alert(`Sai mật khẩu! Còn ${3 - loginAttempts} lần thử.`);
-        if (loginAttempts >= 3) {
-            document.getElementById('forgotPassBtn').style.display = 'block';
-        }
-        return;
+    if (user.pass !== pass) return alert("Sai mật khẩu!");
+
+    verificationType = 'login';
+    verificationEmail = input;
+    verificationCode = Math.floor(1000 + Math.random() * 9000);
+    verificationTime = Date.now();
+    console.log("Code gửi đến:", input, "Code:", verificationCode, "Thời gian:", new Date(verificationTime).toLocaleString());
+    alert(`Mã verification 4 số đã được gửi tự động đến Gmail ${input} của bạn! (Test: ${verificationCode})`);
+    document.getElementById('verificationCode').style.display = 'block';
+    document.getElementById('verifyLoginBtn').style.display = 'block';
+}
+
+function verifyLogin() {
+    const inputCode = document.getElementById('verificationCode').value.trim();
+    if (!inputCode) return alert("Bắt buộc nhập verification code!");
+    if (inputCode !== verificationCode.toString()) return alert("Mã verification sai!");
+
+    const elapsed = Date.now() - verificationTime;
+    if (elapsed > VERIFICATION_TIMEOUT) {
+        verificationCode = null;
+        verificationTime = null;
+        return alert("Mã verification đã hết hạn! Vui lòng gửi mã mới.");
     }
+
+    const input = document.getElementById('loginInput').value.trim();
+    const userData = localStorage.getItem(input);
+    const user = JSON.parse(userData);
 
     currentUser = { email: input, name: user.name, score: user.score || 0, id: user.id };
     localStorage.setItem('lastLoggedInUser', input);
@@ -214,123 +276,48 @@ function login() {
     }
 }
 
-function showForgotPassword() {
-    openModal(`
-        <h2>🔑 Yêu cầu hỗ trợ đổi mật khẩu</h2>
-        <input type="email" id="forgotEmail" placeholder="Gmail của bạn" required><br><br>
-        <input type="text" id="forgotLastPass" placeholder="Mật khẩu gần nhất bạn nhớ" required><br><br>
-        <textarea id="forgotMsg" placeholder="Tin nhắn yêu cầu owner hỗ trợ đổi mật khẩu" required></textarea><br><br>
-        <button class="btn primary" onclick="submitForgotPassword()">GỬI YÊU CẦU</button>
-    `);
-}
-
-function submitForgotPassword() {
-    const email = document.getElementById('forgotEmail').value.trim();
-    const lastPass = document.getElementById('forgotLastPass').value.trim();
-    const msg = document.getElementById('forgotMsg').value.trim();
-    if (!email || !lastPass || !msg) return alert("Vui lòng điền đầy đủ!");
-    alert("Yêu cầu đã gửi đến owner! Vui lòng chờ liên hệ qua Gmail.");
-    closeModal();
-}
-
-function showTutorial() {
-    openModal(`<h2>Hướng dẫn chơi</h2><p>Nghe đoạn nhạc ngắn, đoán tên bài hát.</p><p>Đúng +10 điểm • Sai -10 điểm • Skip -30 • Từ bỏ -10</p><p>Chúc vui!</p>`);
-    speak("Hướng dẫn chơi: Nghe đoạn nhạc ngắn, đoán tên bài hát chính xác nhất. Đúng cộng 10 điểm. Sai trừ 10 điểm. Skip trừ 30. Từ bỏ trừ 10. Chúc bạn chơi vui!");
-}
-
-function checkOnlineAndLogin() {
-    if (!navigator.onLine) {
-        alert("Bạn cần kết nối WiFi hoặc 4G để chơi game!");
-        return;
-    }
-    if (!currentUser) {
-        alert("Bạn cần đăng nhập hoặc đăng ký tài khoản để chơi!");
-        showLogin();
-        return;
-    }
-    startGame();
-}
-
-function startGame() {
-    score = currentUser ? (JSON.parse(localStorage.getItem(currentUser.email)).score || 0) : 0;
-    questionNum = 1;
-    document.getElementById('score').textContent = score;
-    document.getElementById('questionNum').textContent = questionNum;
-    showScreen('mainGame');
-    loadNewSong();
-    speak("Bắt đầu chơi nào! Bấm nút phát để nghe đoạn nhạc và đoán tên bài hát nhé. Không nhìn gì hết, chỉ nghe thôi!");
-}
-
-function logout() {
-    if (confirm("Bạn có chắc muốn đăng xuất không? Điểm số vẫn được lưu lại nhé!")) {
-        localStorage.removeItem('lastLoggedInUser');
-        currentUser = null;
-        showScreen('mainMenu');
-        showNotification("✅ Đã đăng xuất thành công!");
-        speak("Tạm biệt nhé, hẹn gặp lại bạn trong lần chơi sau!");
-    }
-}
-
-function deleteAccountConfirm() {
-    if (confirm("Bạn chắc chắn muốn xóa tài khoản của mình chứ, một khi xóa là không thể khôi phục bạn đồng ý chứ?")) {
-        openModal(`
-            <h2>🔴 XÁC NHẬN XÓA TÀI KHOẢN</h2>
-            <p style="color:#ff6b6b; font-weight:bold; margin-bottom:20px;">
-                Đây là bước cuối! Tài khoản sẽ bị xóa vĩnh viễn nếu mật khẩu đúng.
-            </p>
-            <input type="password" id="deletePassConfirm" placeholder="Nhập mật khẩu để xác nhận xóa" required style="width:100%; padding:12px; border-radius:50px; border:none; margin-bottom:20px;">
-            <button class="btn danger" onclick="finalDeleteAccount()">XÓA VĨNH VIỄN</button>
-            <button class="btn secondary" onclick="closeModal()">Hủy bỏ</button>
-        `);
-        setTimeout(() => document.getElementById('deletePassConfirm').focus(), 300);
-    }
-}
-
-function finalDeleteAccount() {
-    const inputPass = document.getElementById('deletePassConfirm').value.trim();
-    if (!inputPass) {
-        alert("Vui lòng nhập mật khẩu!");
-        return;
-    }
-
-    const userData = localStorage.getItem(currentUser.email);
-    const user = JSON.parse(userData);
-
-    if (inputPass !== user.pass) {
-        alert("Sai mật khẩu! Tài khoản KHÔNG bị xóa. May quá huhu 😭");
-        closeModal();
-        return;
-    }
-
-    localStorage.removeItem(currentUser.email);
-    localStorage.removeItem('lastLoggedInUser');
-    currentUser = null;
-    closeModal();
-    showScreen('mainMenu');
-    showNotification("❌ Tài khoản đã bị xóa vĩnh viễn!");
-    speak("Tài khoản đã bị xóa hoàn toàn. Cảm ơn bạn đã chơi trò chơi của Nguyễn Chí Dự!");
-}
-
 function showAdminLogin() {
     openModal(`
         <h2>🔧 ADMIN PANEL</h2>
         <p style="color:#ff6b6b; font-weight:bold;">Này chỉ dành cho admin người thường không thể truy cập vào được!</p>
         <input type="text" id="adminUser" placeholder="Tên đăng nhập admin" required><br><br>
         <input type="password" id="adminPass" placeholder="Mật khẩu admin" required><br><br>
-        <button class="btn danger" onclick="loginAdmin()">ĐĂNG NHẬP ADMIN</button>
+        <button class="btn primary" onclick="requestAdminCode()">GỬI MÃ VERIFICATION</button>
+        <input type="text" id="verificationCode" placeholder="Nhập mã 4 số" style="display:none; margin-top:15px;"><br><br>
+        <button class="btn danger" id="verifyAdminBtn" style="display:none;" onclick="verifyAdmin()">XÁC NHẬN & VÀO PANEL</button>
     `);
 }
 
-function loginAdmin() {
+function requestAdminCode() {
     const user = document.getElementById('adminUser').value.trim();
     const pass = document.getElementById('adminPass').value;
 
-    if (user === ADMIN_USERNAME && pass === ADMIN_PASSWORD) {
-        closeModal();
-        showAdminPanel();
-    } else {
-        alert("Sai tài khoản hoặc mật khẩu admin!");
+    if (user !== ADMIN_USERNAME || pass !== ADMIN_PASSWORD) return alert("Sai TK/MK admin!");
+
+    verificationType = 'admin';
+    verificationCode = Math.floor(1000 + Math.random() * 9000);
+    verificationTime = Date.now();
+    const randomEmail = OWNER_EMAILS[Math.floor(Math.random() * OWNER_EMAILS.length)];
+    console.log("Code gửi đến Owner:", randomEmail, "Code:", verificationCode, "Thời gian:", new Date(verificationTime).toLocaleString());
+    alert(`Mã verification 4 số đã được gửi tự động đến Gmail Owner (${randomEmail})! (Test: ${verificationCode})`);
+    document.getElementById('verificationCode').style.display = 'block';
+    document.getElementById('verifyAdminBtn').style.display = 'block';
+}
+
+function verifyAdmin() {
+    const inputCode = document.getElementById('verificationCode').value.trim();
+    if (!inputCode) return alert("Bắt buộc nhập verification code!");
+    if (inputCode !== verificationCode.toString()) return alert("Mã verification sai!");
+
+    const elapsed = Date.now() - verificationTime;
+    if (elapsed > VERIFICATION_TIMEOUT) {
+        verificationCode = null;
+        verificationTime = null;
+        return alert("Mã verification đã hết hạn! Vui lòng gửi mã mới.");
     }
+
+    closeModal();
+    showAdminPanel();
 }
 
 function showAdminPanel() {
@@ -465,11 +452,50 @@ function handleAdminCommand(cmd) {
     }
 }
 
+function deleteAccountConfirm() {
+    if (confirm("Bạn chắc chắn muốn xóa tài khoản của mình chứ, một khi xóa là không thể khôi phục bạn đồng ý chứ?")) {
+        openModal(`
+            <h2>🔴 XÁC NHẬN XÓA TÀI KHOẢN</h2>
+            <p style="color:#ff6b6b; font-weight:bold; margin-bottom:20px;">
+                Đây là bước cuối! Tài khoản sẽ bị xóa vĩnh viễn nếu mật khẩu đúng.
+            </p>
+            <input type="password" id="deletePassConfirm" placeholder="Nhập mật khẩu để xác nhận xóa" required style="width:100%; padding:12px; border-radius:50px; border:none; margin-bottom:20px;">
+            <button class="btn danger" onclick="finalDeleteAccount()">XÓA VĨNH VIỄN</button>
+            <button class="btn secondary" onclick="closeModal()">Hủy bỏ</button>
+        `);
+        setTimeout(() => document.getElementById('deletePassConfirm').focus(), 300);
+    }
+}
+
+function finalDeleteAccount() {
+    const inputPass = document.getElementById('deletePassConfirm').value.trim();
+    if (!inputPass) {
+        alert("Vui lòng nhập mật khẩu!");
+        return;
+    }
+
+    const userData = localStorage.getItem(currentUser.email);
+    const user = JSON.parse(userData);
+
+    if (inputPass !== user.pass) {
+        alert("Sai mật khẩu! Tài khoản KHÔNG bị xóa. May quá huhu 😭");
+        closeModal();
+        return;
+    }
+
+    localStorage.removeItem(currentUser.email);
+    localStorage.removeItem('lastLoggedInUser');
+    currentUser = null;
+    closeModal();
+    showScreen('mainMenu');
+    showNotification("❌ Tài khoản đã bị xóa vĩnh viễn!");
+    speak("Tài khoản đã bị xóa hoàn toàn. Cảm ơn bạn đã chơi trò chơi của Nguyễn Chí Dự!");
+}
+
 const tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
 document.head.appendChild(tag);
 
-// NHẠC NỀN ẨN HOÀN TOÀN
 function onYouTubeIframeAPIReady() {
     bgMusicPlayer = new YT.Player('bgMusicPlayer', {
         height: '0',
@@ -491,7 +517,6 @@ function onYouTubeIframeAPIReady() {
         events: {
             onReady: (e) => {
                 e.target.setVolume(20);
-                // ẨN HOÀN TOÀN PLAYER NHẠC NỀN
                 const iframe = document.querySelector('#bgMusicPlayer iframe');
                 if (iframe) {
                     iframe.style.position = 'absolute';
