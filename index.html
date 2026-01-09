@@ -13,12 +13,10 @@
             <h1 class="title">WEBSITE NGHE NHẠC ĐOÁN BÀI HÁT</h1>
             <p class="subtitle">
                 ĐƯỢC TẠO BỞI: Nguyễn Chí Dự 🇻🇳♥️🇻🇳<br>
-                <small>Phiên bản 2.4 – UPDATE CỰC ĐẶC BIỆT LẦN 4 (09/01/2026)<br>
-                Thêm lệnh admin siêu quyền lực: /hack (biết ngay tên bài hát đang phát)<br>
-                Thêm lệnh: /play, /play again, /mute [giây], /unmute<br>
-                Thêm lệnh nhanh: /stop, /skip (miễn phí), /home, /restart<br>
-                Add admin lưu vĩnh viễn + nút ADD ADMIN trong panel<br>
-                Bắt buộc online + tài khoản để chơi – siêu hiện đại, siêu quản lý!</small>
+                <small>Phiên bản 2.9 – UPDATE CỰC ĐẶC BIỆT LẦN 9 (09/01/2026)<br>
+                Đã đăng nhập Admin Panel → reload trang vào thẳng panel luôn (khỏi nhập lại TK/MK)<br>
+                Chỉ giữ lệnh admin quan trọng: /addpoint, /removepoint, /ban<br>
+                Lệnh chỉ dùng kín đáo trong Admin Panel – siêu gọn, siêu an toàn!</small>
             </p>
 
             <button class="btn primary large" onclick="showLogin()">ĐĂNG NHẬP</button>
@@ -68,11 +66,11 @@
         <div class="music-player">
             <button id="playBtn" class="play-button" onclick="playClip()">▶️ PHÁT ĐOẠN NHẠC</button>
             <p class="hint">Chỉ nghe âm thanh thôi nhé – chúc may mắn 😉<br>
-            Đoán tên bài hát hoặc dùng lệnh admin (/help để xem lệnh)</p>
+            Đoán tên bài hát của Sơn Tùng, Alan Walker, NEFFEX, TheFatRat nào!</p>
         </div>
 
         <div class="answer-section">
-            <input type="text" id="answerInput" placeholder="Nhập tên bài hát hoặc lệnh admin (/help)..." autocomplete="off">
+            <input type="text" id="answerInput" placeholder="Nhập tên bài hát ở đây..." autocomplete="off">
             <button class="btn primary" onclick="submitAnswer()">GỬI ĐÁP ÁN</button>
             <button class="btn giveup" onclick="surrenderConfirm()">😞 CHỊU THUA</button>
         </div>
