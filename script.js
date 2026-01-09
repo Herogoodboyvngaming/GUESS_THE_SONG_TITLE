@@ -20,7 +20,7 @@ function loadAdminList() {
     if (saved) {
         adminList = JSON.parse(saved);
     } else {
-        adminList = ["herogoodboymc@gmail.com"]; // Chỉ owner mặc định
+        adminList = ["herogoodboymc@gmail.com"];
         localStorage.setItem('gameAdminList', JSON.stringify(adminList));
     }
 }
@@ -130,10 +130,10 @@ function submitBug() {
 function showInfo() {
     openModal(`
         <h2>ℹ️ THÔNG TIN & UPDATE</h2>
-        <p><strong>Phiên bản 2.9.1 (09/01/2026)</p>
-        <p>- Fix reload vào thẳng Admin Panel nếu đã login session<br>
-        - Bấm GỬI LỆNH khi chưa nhập → hiện "❌ Bạn chưa nhập lệnh!"<br>
-        - Chỉ giữ lệnh admin quan trọng: /addpoint, /removepoint, /ban</p>
+        <p><strong>Phiên bản 2.9.2 (09/01/2026)</p>
+        <p>- Fix lệnh /addpoint và /removepoint hoạt động mượt (cộng/trừ điểm ngay)<br>
+        - Xóa tự động vào Admin Panel khi reload (phải nhập TK/MK mỗi lần để an toàn)<br>
+        - Bấm GỬI LỆNH khi chưa nhập → "❌ Bạn chưa nhập lệnh!"</p>
         <p>Liên hệ hỗ trợ: Herogoodboymc2024@gmail.com</p>
     `);
 }
@@ -145,7 +145,6 @@ function openModal(content) {
 
 function closeModal() {
     document.getElementById('modal').style.display = 'none';
-    localStorage.removeItem('adminSessionActive');
 }
 
 function speak(text) {
@@ -264,7 +263,6 @@ function startGame() {
 function logout() {
     if (confirm("Bạn có chắc muốn đăng xuất không? Điểm số vẫn được lưu lại nhé!")) {
         localStorage.removeItem('lastLoggedInUser');
-        localStorage.removeItem('adminSessionActive');
         currentUser = null;
         showScreen('mainMenu');
         showNotification("✅ Đã đăng xuất thành công!");
@@ -305,7 +303,6 @@ function finalDeleteAccount() {
 
     localStorage.removeItem(currentUser.email);
     localStorage.removeItem('lastLoggedInUser');
-    localStorage.removeItem('adminSessionActive');
     currentUser = null;
     closeModal();
     showScreen('mainMenu');
@@ -313,13 +310,7 @@ function finalDeleteAccount() {
     speak("Tài khoản đã bị xóa hoàn toàn. Cảm ơn bạn đã chơi trò chơi của Nguyễn Chí Dự!");
 }
 
-// FIX RELOAD VÀO THẲNG PANEL
 function showAdminLogin() {
-    if (localStorage.getItem('adminSessionActive') === 'true' && isAdmin() && currentUser) {
-        showAdminPanel();
-        return;
-    }
-
     openModal(`
         <h2>🔧 ADMIN PANEL</h2>
         <p style="color:#ff6b6b; font-weight:bold;">Này chỉ dành cho admin người thường không thể truy cập vào được!</p>
@@ -334,7 +325,6 @@ function loginAdmin() {
     const pass = document.getElementById('adminPass').value;
 
     if (user === ADMIN_USERNAME && pass === ADMIN_PASSWORD) {
-        localStorage.setItem('adminSessionActive', 'true');
         closeModal();
         showAdminPanel();
     } else {
@@ -350,7 +340,6 @@ function showAdminPanel() {
         <button class="btn ${commandsEnabled ? 'warning' : 'primary'}" onclick="toggleCommands()">
             ${commandsEnabled ? 'TẮT' : 'BẬT'} LỆNH COMMAND
         </button>
-        <button class="btn secondary" onclick="logoutAdminSession()">ĐĂNG XUẤT ADMIN PANEL</button>
         <hr>
         <h3>Thêm Admin mới</h3>
         <input type="text" id="newAdminID" placeholder="Nhập Gmail hoặc ID người dùng" style="width:100%; padding:12px; border-radius:50px; border:none; margin-bottom:10px;">
@@ -368,12 +357,6 @@ function showAdminPanel() {
             <li>/help → xem lệnh</li>
         </ul>
     `);
-}
-
-function logoutAdminSession() {
-    localStorage.removeItem('adminSessionActive');
-    closeModal();
-    showNotification("✅ Đã đăng xuất Admin Panel! Lần sau phải nhập lại TK/MK.");
 }
 
 function addNewAdmin() {
@@ -400,7 +383,6 @@ function toggleCommands() {
     showAdminPanel();
 }
 
-// FIX BẤM GỬI KHI CHƯA NHẬP
 function executeAdminCommand() {
     const input = document.getElementById('adminCommandInput').value.trim();
     if (!input) {
@@ -521,6 +503,11 @@ function handleAdminCommand(cmd) {
         if (!isNaN(points) && points > 0) {
             score += points;
             document.getElementById('score').textContent = score;
+            if (currentUser) {
+                const data = JSON.parse(localStorage.getItem(currentUser.email));
+                data.score = score;
+                localStorage.setItem(currentUser.email, JSON.stringify(data));
+            }
             showNotification(`✅ Admin cộng +${points} điểm!`);
         } else {
             showNotification("❌ Sai cú pháp! /addpoint [số điểm > 0]");
@@ -530,6 +517,11 @@ function handleAdminCommand(cmd) {
         if (!isNaN(points) && points > 0) {
             score = Math.max(0, score - points);
             document.getElementById('score').textContent = score;
+            if (currentUser) {
+                const data = JSON.parse(localStorage.getItem(currentUser.email));
+                data.score = score;
+                localStorage.setItem(currentUser.email, JSON.stringify(data));
+            }
             showNotification(`❌ Admin trừ -${points} điểm!`);
         } else {
             showNotification("❌ Sai cú pháp! /removepoint [số điểm > 0]");
@@ -648,11 +640,6 @@ window.onload = () => {
             document.getElementById('welcomeUser').textContent = `Xin chào ${user.name}!`;
             updateProfile();
             speak(`Chào mừng ${user.name} quay lại nhé!`);
-
-            // TỰ ĐỘNG VÀO ADMIN PANEL NẾU CÓ SESSION
-            if (localStorage.getItem('adminSessionActive') === 'true' && isAdmin()) {
-                showAdminPanel();
-            }
             return;
         }
     }
