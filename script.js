@@ -8,8 +8,6 @@ let currentSong = null;
 let loginAttempts = 0;
 let isOnline = navigator.onLine;
 let commandsEnabled = true;
-let isMuted = false;
-let muteTimeout = null;
 
 // Admin credentials + list admin (lưu vĩnh viễn)
 const ADMIN_USERNAME = "herogoodboyvngaming";
@@ -22,7 +20,7 @@ function loadAdminList() {
     if (saved) {
         adminList = JSON.parse(saved);
     } else {
-        adminList = ["herogoodboymc@gmail.com"]; // Owner mặc định
+        adminList = ["herogoodboymc@gmail.com"]; // Chỉ owner mặc định
         localStorage.setItem('gameAdminList', JSON.stringify(adminList));
     }
 }
@@ -132,12 +130,10 @@ function submitBug() {
 function showInfo() {
     openModal(`
         <h2>ℹ️ THÔNG TIN & UPDATE</h2>
-        <p><strong>Phiên bản 2.4 (09/01/2026)</p>
-        <p>- Thêm lệnh admin siêu quyền lực: /hack (biết ngay tên bài hát đang phát)<br>
-        - Thêm lệnh: /play, /play again, /mute [giây], /unmute<br>
-        - Thêm lệnh nhanh: /stop, /skip (miễn phí), /home, /restart<br>
-        - Add admin lưu vĩnh viễn + nút ADD ADMIN trong panel<br>
-        - Bảo vệ Owner không bị ban/kick</p>
+        <p><strong>Phiên bản 2.9 (09/01/2026)</p>
+        <p>- Đã đăng nhập Admin Panel → reload trang vào thẳng panel luôn (khỏi nhập lại TK/MK)<br>
+        - Chỉ giữ lệnh admin quan trọng: /addpoint, /removepoint, /ban<br>
+        - Lệnh chỉ dùng kín đáo trong Admin Panel</p>
         <p>Liên hệ hỗ trợ: Herogoodboymc2024@gmail.com</p>
     `);
 }
@@ -149,6 +145,8 @@ function openModal(content) {
 
 function closeModal() {
     document.getElementById('modal').style.display = 'none';
+    // Xóa trạng thái admin session khi đóng panel
+    localStorage.removeItem('adminSessionActive');
 }
 
 function speak(text) {
@@ -175,9 +173,14 @@ function register() {
     const pass = document.getElementById('regPass').value;
     if (!name || !email || !pass) return alert("Điền đầy đủ!");
 
+    if (localStorage.getItem(email)) {
+        alert("Email này đã được đăng ký rồi!");
+        return;
+    }
+
     const newID = generateUserID();
     localStorage.setItem(email, JSON.stringify({ name, pass, score: 0, firstTime: true, id: newID }));
-    alert("Đăng ký thành công! ID của bạn: " + newID);
+    alert("Đăng ký thành công! ID cố định của bạn: " + newID);
     closeModal();
 }
 
@@ -197,7 +200,7 @@ function login() {
         return;
     }
 
-    currentUser = { email: input, name: user.name, score: user.score || 0, id: user.id || generateUserID() };
+    currentUser = { email: input, name: user.name, score: user.score || 0, id: user.id };
     localStorage.setItem('lastLoggedInUser', input);
     showScreen('mainHome');
     document.getElementById('welcomeUser').textContent = `Xin chào ${user.name}!`;
@@ -262,6 +265,7 @@ function startGame() {
 function logout() {
     if (confirm("Bạn có chắc muốn đăng xuất không? Điểm số vẫn được lưu lại nhé!")) {
         localStorage.removeItem('lastLoggedInUser');
+        localStorage.removeItem('adminSessionActive'); // Xóa session admin
         currentUser = null;
         showScreen('mainMenu');
         showNotification("✅ Đã đăng xuất thành công!");
@@ -302,6 +306,7 @@ function finalDeleteAccount() {
 
     localStorage.removeItem(currentUser.email);
     localStorage.removeItem('lastLoggedInUser');
+    localStorage.removeItem('adminSessionActive');
     currentUser = null;
     closeModal();
     showScreen('mainMenu');
@@ -310,6 +315,12 @@ function finalDeleteAccount() {
 }
 
 function showAdminLogin() {
+    // Kiểm tra nếu đã có session admin → vào thẳng panel
+    if (localStorage.getItem('adminSessionActive') === 'true' && isAdmin()) {
+        showAdminPanel();
+        return;
+    }
+
     openModal(`
         <h2>🔧 ADMIN PANEL</h2>
         <p style="color:#ff6b6b; font-weight:bold;">Này chỉ dành cho admin người thường không thể truy cập vào được!</p>
@@ -324,6 +335,7 @@ function loginAdmin() {
     const pass = document.getElementById('adminPass').value;
 
     if (user === ADMIN_USERNAME && pass === ADMIN_PASSWORD) {
+        localStorage.setItem('adminSessionActive', 'true'); // Lưu session admin
         closeModal();
         showAdminPanel();
     } else {
@@ -331,6 +343,7 @@ function loginAdmin() {
     }
 }
 
+// ADMIN PANEL - CHỈ 3 LỆNH QUAN TRỌNG
 function showAdminPanel() {
     openModal(`
         <h2>🔧 ADMIN PANEL - MODERATOR</h2>
@@ -339,21 +352,31 @@ function showAdminPanel() {
         <button class="btn ${commandsEnabled ? 'warning' : 'primary'}" onclick="toggleCommands()">
             ${commandsEnabled ? 'TẮT' : 'BẬT'} LỆNH COMMAND
         </button>
+        <button class="btn secondary" onclick="logoutAdminSession()">ĐĂNG XUẤT ADMIN PANEL</button>
         <hr>
         <h3>Thêm Admin mới</h3>
         <input type="text" id="newAdminID" placeholder="Nhập Gmail hoặc ID người dùng" style="width:100%; padding:12px; border-radius:50px; border:none; margin-bottom:10px;">
         <button class="btn primary" onclick="addNewAdmin()">ADD ADMIN</button>
         <hr>
-        <p><strong>Lệnh admin siêu quyền lực (gõ vào ô đoán bài hát):</strong></p>
+        <h3>GỬI LỆNH ADMIN (chỉ trong panel này)</h3>
+        <input type="text" id="adminCommandInput" placeholder="Gõ lệnh (vd: /addpoint 100, /removepoint 50, /ban USER#1234)" style="width:100%; padding:12px; border-radius:50px; border:none; margin-bottom:10px;">
+        <button class="btn danger" onclick="executeAdminCommand()">GỬI LỆNH</button>
+        <hr>
+        <p><strong>Lệnh admin hiện có:</strong></p>
         <ul style="text-align:left;">
-            <li>/hack → biết ngay tên bài hát đang phát</li>
-            <li>/play → chơi nhạc ngay</li>
-            <li>/play again → chơi lại bài hiện tại</li>
-            <li>/mute [giây] → tắt tiếng nhạc</li>
-            <li>/unmute → bật lại tiếng</li>
-            <li>/stop, /skip, /home, /restart, /addpoint, /ban, /kick, /help</li>
+            <li>/addpoint [số] → cộng điểm cho bạn</li>
+            <li>/removepoint [số] → trừ điểm của bạn</li>
+            <li>/ban [ID] → ban người dùng</li>
+            <li>/help → xem lệnh</li>
         </ul>
     `);
+}
+
+// Đăng xuất session admin
+function logoutAdminSession() {
+    localStorage.removeItem('adminSessionActive');
+    closeModal();
+    showNotification("✅ Đã đăng xuất Admin Panel! Lần sau phải nhập lại TK/MK.");
 }
 
 function addNewAdmin() {
@@ -432,54 +455,18 @@ function loadNewSong() {
 
 function playClip() {
     if (player && typeof player.playVideo === 'function') {
-        if (!isMuted) {
-            player.setVolume(100);
-            player.playVideo();
-            speak("Đoạn nhạc đang phát! Lắng nghe kỹ và đoán tên bài hát nào! Chúc may mắn nhé!");
-        } else {
-            showNotification("🔇 Nhạc đang bị mute bởi admin!");
-        }
+        player.setVolume(100);
+        player.playVideo();
+        speak("Đoạn nhạc đang phát! Lắng nghe kỹ và đoán tên bài hát nào! Chúc may mắn nhé!");
     } else {
         showNotification("⏳ Đang tải nhạc, bấm lại sau vài giây nhé!");
         setTimeout(playClip, 1500);
     }
 }
 
-function playAgain() {
-    if (player && typeof player.seekTo === 'function') {
-        player.seekTo(player.getCurrentTime() - (player.getDuration() - player.getCurrentTime()));
-        player.playVideo();
-        showNotification("🔁 Admin chơi lại bài hát!");
-    }
-}
-
-function muteMusic(seconds) {
-    if (player) {
-        player.setVolume(0);
-        isMuted = true;
-        showNotification(`🔇 Admin mute nhạc trong ${seconds} giây!`);
-        if (muteTimeout) clearTimeout(muteTimeout);
-        muteTimeout = setTimeout(unmuteMusic, seconds * 1000);
-    }
-}
-
-function unmuteMusic() {
-    if (player) {
-        player.setVolume(100);
-        isMuted = false;
-        showNotification("🔊 Admin unmute nhạc!");
-    }
-}
-
+// submitAnswer - CHỈ ĐOÁN BÀI HÁT BÌNH THƯỜNG
 function submitAnswer() {
     const input = document.getElementById('answerInput').value.trim();
-
-    // Lệnh admin
-    if (input.startsWith("/") && commandsEnabled && isAdmin()) {
-        handleAdminCommand(input);
-        document.getElementById('answerInput').value = '';
-        return;
-    }
 
     const normalizedInput = input.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const normalizedCorrect = currentSong.title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -489,7 +476,7 @@ function submitAnswer() {
         showNotification("✅ Đúng rồi! +10 điểm");
         new Audio('https://www.myinstants.com/media/sounds/correct-answer-gameshow.mp3').play();
     } else {
-        score -= 10;
+        score = Math.max(0, score - 10);
         showNotification("❌ Sai rồi! -10 điểm");
         new Audio('https://www.myinstants.com/media/sounds/wrong-answer-gameshow.mp3').play();
     }
@@ -508,51 +495,34 @@ function submitAnswer() {
     loadNewSong();
 }
 
+// Lệnh admin - CHỈ 3 LỆNH TRONG PANEL
 function handleAdminCommand(cmd) {
     const parts = cmd.slice(1).split(" ");
     const command = parts[0].toLowerCase();
     const arg = parts.slice(1).join(" ");
 
-    // Bảo vệ Owner
-    if (currentUser.email === "herogoodboymc@gmail.com") {
-        if (command === "ban" || command === "kick") {
-            showNotification("❌ Không thể dùng lệnh này với Owner!");
-            return;
-        }
+    if (currentUser.email === "herogoodboymc@gmail.com" && command === "ban") {
+        showNotification("❌ Không thể ban Owner!");
+        return;
     }
 
-    if (command === "hack") {
-        showNotification(`🔓 Admin hack: Bài hát đang phát là "${currentSong.title}" của ${currentSong.artist}!`);
-        speak(`Bài hát hiện tại là ${currentSong.title} của ${currentSong.artist}`);
-    } else if (command === "play") {
-        playClip();
-    } else if (command === "play again") {
-        playAgain();
-    } else if (command === "mute") {
-        const seconds = parseInt(arg) || 30;
-        muteMusic(seconds);
-    } else if (command === "unmute") {
-        unmuteMusic();
-    } else if (command === "stop") {
-        backToHome();
-        showNotification("🛑 Admin dừng game!");
-    } else if (command === "skip") {
-        loadNewSong();
-        showNotification("⏩ Admin skip miễn phí!");
-    } else if (command === "home") {
-        backToHome();
-        showNotification("🏠 Admin về trang chủ!");
-    } else if (command === "restart") {
-        startGame();
-        showNotification("🔃 Admin restart game!");
-    } else if (command === "addpoint") {
+    if (command === "addpoint") {
         const points = parseInt(arg);
-        if (!isNaN(points)) {
+        if (!isNaN(points) && points > 0) {
             score += points;
             document.getElementById('score').textContent = score;
             showNotification(`✅ Admin cộng +${points} điểm!`);
         } else {
-            showNotification("❌ Sai cú pháp! /addpoint [số điểm]");
+            showNotification("❌ Sai cú pháp! /addpoint [số điểm > 0]");
+        }
+    } else if (command === "removepoint") {
+        const points = parseInt(arg);
+        if (!isNaN(points) && points > 0) {
+            score = Math.max(0, score - points);
+            document.getElementById('score').textContent = score;
+            showNotification(`❌ Admin trừ -${points} điểm!`);
+        } else {
+            showNotification("❌ Sai cú pháp! /removepoint [số điểm > 0]");
         }
     } else if (command === "ban") {
         if (arg) {
@@ -560,16 +530,8 @@ function handleAdminCommand(cmd) {
         } else {
             showNotification("❌ Sai cú pháp! /ban [ID]");
         }
-    } else if (command === "kick") {
-        if (arg) {
-            showNotification(`👢 Đã KICK người dùng ${arg}!`);
-            alert("Bạn bị KICK bởi Admin!");
-            setTimeout(() => location.reload(), 1000);
-        } else {
-            showNotification("❌ Sai cú pháp! /kick [ID]");
-        }
     } else if (command === "help") {
-        showNotification("Lệnh admin: /hack, /play, /play again, /mute [giây], /unmute, /stop, /skip, /home, /restart, /addpoint, /ban, /kick, /help");
+        showNotification("Lệnh admin: /addpoint [số], /removepoint [số], /ban [ID], /help");
     } else {
         showNotification("❌ Lệnh không tồn tại! Gõ /help");
     }
@@ -588,7 +550,7 @@ function skipConfirm() {
         return;
     }
     if (confirm("Bạn chắc chắn muốn SKIP? (-30 điểm)")) {
-        score -= 30;
+        score = Math.max(0, score - 30);
         document.getElementById('score').textContent = score;
         loadNewSong();
     }
@@ -600,7 +562,7 @@ function giveUpConfirm() {
         return;
     }
     if (confirm("Từ bỏ câu này? (-10 điểm)")) {
-        score -= 10;
+        score = Math.max(0, score - 10);
         document.getElementById('score').textContent = score;
         loadNewSong();
     }
@@ -671,11 +633,16 @@ window.onload = () => {
         const userData = localStorage.getItem(savedEmail);
         if (userData) {
             const user = JSON.parse(userData);
-            currentUser = { email: savedEmail, name: user.name, score: user.score || 0, id: user.id || generateUserID() };
+            currentUser = { email: savedEmail, name: user.name, score: user.score || 0, id: user.id };
             showScreen('mainHome');
             document.getElementById('welcomeUser').textContent = `Xin chào ${user.name}!`;
             updateProfile();
             speak(`Chào mừng ${user.name} quay lại nhé!`);
+
+            // TỰ ĐỘNG VÀO ADMIN PANEL NẾU ĐÃ CÓ SESSION
+            if (localStorage.getItem('adminSessionActive') === 'true' && isAdmin()) {
+                showAdminPanel();
+            }
             return;
         }
     }
