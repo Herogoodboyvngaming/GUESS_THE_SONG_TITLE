@@ -132,8 +132,9 @@ function submitBug() {
 function showInfo() {
     openModal(`
         <h2>ℹ️ THÔNG TIN & UPDATE</h2>
-        <p><strong>Phiên bản 2.3 (09/01/2026)</p>
-        <p>- Thêm lệnh admin mới: /play, /play again, /mute [giây], /unmute<br>
+        <p><strong>Phiên bản 2.4 (09/01/2026)</p>
+        <p>- Thêm lệnh admin siêu quyền lực: /hack (biết ngay tên bài hát đang phát)<br>
+        - Thêm lệnh: /play, /play again, /mute [giây], /unmute<br>
         - Thêm lệnh nhanh: /stop, /skip (miễn phí), /home, /restart<br>
         - Add admin lưu vĩnh viễn + nút ADD ADMIN trong panel<br>
         - Bảo vệ Owner không bị ban/kick</p>
@@ -343,8 +344,9 @@ function showAdminPanel() {
         <input type="text" id="newAdminID" placeholder="Nhập Gmail hoặc ID người dùng" style="width:100%; padding:12px; border-radius:50px; border:none; margin-bottom:10px;">
         <button class="btn primary" onclick="addNewAdmin()">ADD ADMIN</button>
         <hr>
-        <p><strong>Lệnh admin mới (gõ vào ô đoán bài hát):</strong></p>
+        <p><strong>Lệnh admin siêu quyền lực (gõ vào ô đoán bài hát):</strong></p>
         <ul style="text-align:left;">
+            <li>/hack → biết ngay tên bài hát đang phát</li>
             <li>/play → chơi nhạc ngay</li>
             <li>/play again → chơi lại bài hiện tại</li>
             <li>/mute [giây] → tắt tiếng nhạc</li>
@@ -428,7 +430,6 @@ function loadNewSong() {
     });
 }
 
-// Play nhạc (admin dùng /play)
 function playClip() {
     if (player && typeof player.playVideo === 'function') {
         if (!isMuted) {
@@ -444,16 +445,14 @@ function playClip() {
     }
 }
 
-// Play lại bài hiện tại (admin dùng /play again)
 function playAgain() {
     if (player && typeof player.seekTo === 'function') {
-        player.seekTo(player.getCurrentTime() - (player.getDuration() - player.getCurrentTime())); // quay lại đầu
+        player.seekTo(player.getCurrentTime() - (player.getDuration() - player.getCurrentTime()));
         player.playVideo();
         showNotification("🔁 Admin chơi lại bài hát!");
     }
 }
 
-// Mute/Unmute (admin dùng)
 function muteMusic(seconds) {
     if (player) {
         player.setVolume(0);
@@ -482,7 +481,6 @@ function submitAnswer() {
         return;
     }
 
-    // Đoán bài hát
     const normalizedInput = input.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const normalizedCorrect = currentSong.title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
@@ -523,7 +521,10 @@ function handleAdminCommand(cmd) {
         }
     }
 
-    if (command === "play") {
+    if (command === "hack") {
+        showNotification(`🔓 Admin hack: Bài hát đang phát là "${currentSong.title}" của ${currentSong.artist}!`);
+        speak(`Bài hát hiện tại là ${currentSong.title} của ${currentSong.artist}`);
+    } else if (command === "play") {
         playClip();
     } else if (command === "play again") {
         playAgain();
@@ -568,7 +569,7 @@ function handleAdminCommand(cmd) {
             showNotification("❌ Sai cú pháp! /kick [ID]");
         }
     } else if (command === "help") {
-        showNotification("Lệnh admin: /play, /play again, /mute [giây], /unmute, /stop, /skip, /home, /restart, /addpoint, /ban, /kick, /help");
+        showNotification("Lệnh admin: /hack, /play, /play again, /mute [giây], /unmute, /stop, /skip, /home, /restart, /addpoint, /ban, /kick, /help");
     } else {
         showNotification("❌ Lệnh không tồn tại! Gõ /help");
     }
