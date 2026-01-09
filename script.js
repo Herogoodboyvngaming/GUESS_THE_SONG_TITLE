@@ -9,6 +9,16 @@ let loginAttempts = 0;
 let isOnline = navigator.onLine;
 let commandsEnabled = true;
 
+// Kiểm tra EmailJS đã load chưa (thêm an toàn)
+window.addEventListener('load', function() {
+    if (typeof emailjs === 'undefined') {
+        console.error("EmailJS chưa load! Kiểm tra mạng hoặc CDN.");
+        alert("Lỗi: Không thể gửi mã vì EmailJS chưa load. Thử reload trang hoặc kiểm tra mạng!");
+    } else {
+        console.log("EmailJS load thành công!");
+    }
+});
+
 // Khởi tạo EmailJS với Public Key thật của bạn
 (function() {
     emailjs.init("JSFLTXcSQhzhzOT3");
@@ -487,7 +497,7 @@ function handleAdminCommand(cmd) {
 }
 
 function deleteAccountConfirm() {
-    if (confirm("⚠️Bạn có chắc chắn muốn xóa tài khoản không? Thao tác này KHÔNG THỂ khôi phục được đấy!"")) {
+    if (confirm("⚠️Bạn có chắc chắn muốn xóa tài khoản không? Thao tác này KHÔNG THỂ khôi phục được đấy!")) {
         openModal(`
             <h2>🔴 XÁC NHẬN XÓA TÀI KHOẢN</h2>
             <p style="color:#ff6b6b; font-weight:bold; margin-bottom:20px;">
