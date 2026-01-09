@@ -9,6 +9,11 @@ let loginAttempts = 0;
 let isOnline = navigator.onLine;
 let commandsEnabled = true;
 
+// Khởi tạo EmailJS với Public Key thật của bạn
+(function() {
+    emailjs.init("JSFLTXcSQhzhzOT3");
+})();
+
 // Admin credentials (1 panel duy nhất)
 const ADMIN_USERNAME = "herogoodboyvngaming";
 const ADMIN_PASSWORD = "Nguyen2009";
@@ -93,6 +98,27 @@ const songs = [
     { title: "See You Again", artist: "Wiz Khalifa", id: "RgKAFK5djSk" },
 ];
 
+// Hàm gửi email verification THẬT bằng EmailJS
+function sendVerificationEmail(toEmail, code, name = "bạn") {
+    const templateParams = {
+        to_email: toEmail,
+        name: name,
+        code: code
+    };
+
+    emailjs.send(
+        "service_gs9juzg",               // Service ID thật
+        "gOaYa2oTToTjVMy9J",             // Template ID thật
+        templateParams
+    )
+    .then(function(response) {
+        console.log("Gửi mã thành công!", response.status, response.text);
+    }, function(error) {
+        console.log("Gửi mã lỗi...", error);
+        alert("Có lỗi khi gửi mã! Vui lòng thử lại.");
+    });
+}
+
 function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
@@ -145,7 +171,7 @@ function showInfo() {
     openModal(`
         <h2>ℹ️ THÔNG TIN & UPDATE</h2>
         <p><strong>Phiên bản 4.2 (09/01/2026)</p>
-        <p>- Verification code 4 số tự động gửi vào Gmail khi bấm GỬI MÃ<br>
+        <p>- Verification code 4 số tự động gửi thật vào Gmail khi bấm GỬI MÃ<br>
         - Code hết hạn sau 15 phút<br>
         - Đăng ký/Đăng nhập/Admin Panel đều cần code hợp lệ</p>
         <p>Liên hệ hỗ trợ: Herogoodboymc2024@gmail.com</p>
@@ -195,8 +221,11 @@ function requestRegisterCode() {
     verificationEmail = email;
     verificationCode = Math.floor(1000 + Math.random() * 9000);
     verificationTime = Date.now();
-    console.log("Code gửi đến:", email, "Code:", verificationCode, "Thời gian:", new Date(verificationTime).toLocaleString());
-    alert(`Mã verification 4 số đã được gửi tự động đến Gmail ${email} của bạn! (Test: ${verificationCode})`);
+
+    // Gửi mã THẬT vào Gmail người dùng
+    sendVerificationEmail(email, verificationCode, name);
+
+    alert(`Mã verification 4 số đã được gửi đến Gmail ${email} của bạn! Kiểm tra hộp thư (hoặc spam).`);
     document.getElementById('verificationCode').style.display = 'block';
     document.getElementById('verifyRegisterBtn').style.display = 'block';
 }
@@ -239,8 +268,11 @@ function requestLoginCode() {
     verificationEmail = input;
     verificationCode = Math.floor(1000 + Math.random() * 9000);
     verificationTime = Date.now();
-    console.log("Code gửi đến:", input, "Code:", verificationCode, "Thời gian:", new Date(verificationTime).toLocaleString());
-    alert(`Mã verification 4 số đã được gửi tự động đến Gmail ${input} của bạn! (Test: ${verificationCode})`);
+
+    // Gửi mã THẬT vào Gmail người dùng
+    sendVerificationEmail(input, verificationCode);
+
+    alert(`Mã verification 4 số đã được gửi đến Gmail ${input} của bạn! Kiểm tra hộp thư (hoặc spam).`);
     document.getElementById('verificationCode').style.display = 'block';
     document.getElementById('verifyLoginBtn').style.display = 'block';
 }
@@ -297,9 +329,11 @@ function requestAdminCode() {
     verificationType = 'admin';
     verificationCode = Math.floor(1000 + Math.random() * 9000);
     verificationTime = Date.now();
+
     const randomEmail = OWNER_EMAILS[Math.floor(Math.random() * OWNER_EMAILS.length)];
-    console.log("Code gửi đến Owner:", randomEmail, "Code:", verificationCode, "Thời gian:", new Date(verificationTime).toLocaleString());
-    alert(`Mã verification 4 số đã được gửi tự động đến Gmail Owner (${randomEmail})! (Test: ${verificationCode})`);
+    sendVerificationEmail(randomEmail, verificationCode, "Owner");
+
+    alert(`Mã verification 4 số đã được gửi đến Gmail Owner!`);
     document.getElementById('verificationCode').style.display = 'block';
     document.getElementById('verifyAdminBtn').style.display = 'block';
 }
@@ -453,7 +487,7 @@ function handleAdminCommand(cmd) {
 }
 
 function deleteAccountConfirm() {
-    if (confirm("Bạn chắc chắn muốn xóa tài khoản của mình chứ, một khi xóa là không thể khôi phục bạn đồng ý chứ?")) {
+    if (confirm("⚠️Bạn có chắc chắn muốn xóa tài khoản không? Thao tác này KHÔNG THỂ khôi phục được đấy!"")) {
         openModal(`
             <h2>🔴 XÁC NHẬN XÓA TÀI KHOẢN</h2>
             <p style="color:#ff6b6b; font-weight:bold; margin-bottom:20px;">
